@@ -577,7 +577,8 @@ function toggleMode() {
   if (btn) btn.textContent = isLight ? '🌙 Dark' : '☀️ Light';
   localStorage.setItem('mode', isLight ? 'light' : 'dark');
 }
-if (localStorage.getItem('mode') === 'light') {
+const savedMode = localStorage.getItem('mode');
+if (savedMode !== 'dark') {
   document.documentElement.classList.add('light');
   document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('mode-toggle');

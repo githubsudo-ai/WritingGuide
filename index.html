@@ -480,7 +480,7 @@ function renderIntro() {
     <div class="intro">
       <div class="intro-eyebrow">Personal Writing Guide</div>
       <h1>Teach AI to write<br>exactly like you.</h1>
-      <p class="intro-sub">Answer 15 questions. Get a prompt. Paste it into
+      <p class="intro-sub">Answer 12 questions. Get a prompt. Paste it into
         <span class="ai-inline"><img src="icons/atlassian-rovo-icon.webp" alt="" aria-hidden="true">Rovo Chat</span>,
         <span class="ai-inline"><img src="icons/ChatGPT-Logo.svg.png" alt="" aria-hidden="true">ChatGPT</span>,
         <span class="ai-inline"><img src="icons/gemini.webp" alt="" aria-hidden="true">Gemini</span>,
@@ -1126,8 +1126,9 @@ function toggleMode() {
   localStorage.setItem('mode', isLight ? 'light' : 'dark');
 }
 
-// Restore saved mode
-if (localStorage.getItem('mode') === 'light') {
+// Default to light mode unless user has explicitly chosen dark
+const savedMode = localStorage.getItem('mode');
+if (savedMode !== 'dark') {
   document.documentElement.classList.add('light');
   document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('mode-toggle');
