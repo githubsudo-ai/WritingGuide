@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Final Screen Preview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f0f; color: #f0f0f0;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 24px;
+    }
+    .container { width: 100%; max-width: 700px; }
+
+    .final-screen {}
+    .final-screen h1 { font-size: 32px; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.02em; }
+    .final-screen .subtitle { font-size: 16px; color: #666; margin-bottom: 36px; line-height: 1.5; }
+
+    .prompt-hero {
+      background: #141414; border: 1px solid #2a2a2a; border-radius: 16px;
+      overflow: hidden; margin-bottom: 16px;
+    }
+    .prompt-preview {
+      padding: 20px 24px; font-size: 14px; line-height: 1.75; color: #777;
+      white-space: pre-wrap; font-family: 'SF Mono', 'Fira Mono', monospace;
+      max-height: 110px; overflow: hidden; position: relative;
+    }
+    .prompt-preview::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 48px;
+      background: linear-gradient(transparent, #141414);
+    }
+    .prompt-preview.expanded { max-height: 420px; overflow-y: auto; }
+    .prompt-preview.expanded::after { display: none; }
+    .prompt-expand {
+      border-top: 1px solid #1e1e1e; padding: 10px 24px;
+      font-size: 12px; color: #444; cursor: pointer; text-align: center;
+      transition: color 0.2s; user-select: none;
+    }
+    .prompt-expand:hover { color: #888; }
+
+    .btn-copy-hero {
+      width: 100%; background: #fff; color: #000; border: none; border-radius: 10px;
+      padding: 16px; font-size: 16px; font-weight: 700; cursor: pointer;
+      transition: all 0.2s; letter-spacing: -0.01em; display: flex;
+      align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-copy-hero:hover { background: #e0e0e0; transform: translateY(-1px); }
+    .btn-copy-hero:active { transform: translateY(0); }
+    .copy-confirm {
+      text-align: center; font-size: 14px; color: #4caf50;
+      margin-top: 12px; display: none; min-height: 20px;
+    }
+
+    .final-divider { border: none; border-top: 1px solid #1a1a1a; margin: 28px 0; }
+
+    .how-to { font-size: 14px; color: #555; line-height: 1.9; }
+    .how-to strong { color: #888; font-weight: 500; }
+    .how-to ol { padding-left: 18px; }
+    .how-to ol li { margin-bottom: 4px; }
+
+    .btn-restart {
+      display: inline-block; margin-top: 20px; font-size: 13px; color: #333;
+      cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+      transition: color 0.2s;
+    }
+    .btn-restart:hover { color: #777; }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+
+    /* Preview badge */
+    .preview-badge {
+      position: fixed; top: 16px; right: 16px;
+      background: #1a1a0a; border: 1px solid #3a3a10; border-radius: 8px;
+      padding: 6px 14px; font-size: 12px; color: #888840;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+<div class="preview-badge">⚡ Preview mode — mock data</div>
+<div class="container">
+  <div class="final-screen">
+    <h1>You're done, Abhinav ✦</h1>
+    <div class="subtitle">Copy the prompt below and paste it into any AI — Claude, ChatGPT, Gemini, whatever you use. It'll generate your Personal Writing Guide.</div>
+
+    <div class="prompt-hero">
+      <div class="prompt-preview" id="prompt-preview"></div>
+      <div class="prompt-expand" id="prompt-expand" onclick="togglePromptExpand()">Show full prompt ↓</div>
+    </div>
+
+    <button class="btn-copy-hero" onclick="copyPrompt()">
+      <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg>
+      Copy prompt
+    </button>
+    <div class="copy-confirm" id="copy-confirm">✓ Copied — paste it into Claude, ChatGPT, Gemini, or any AI</div>
+
+    <hr class="final-divider" />
+
+    <div class="how-to">
+      <strong>What happens when you paste it:</strong>
+      <ol>
+        <li>The AI reads your answers and builds a profile of your voice.</li>
+        <li>It produces a <strong>formatted Writing Guide</strong> — visual, shareable, pinnable.</li>
+        <li>It also produces a <strong>plain markdown version</strong> you can save and reuse as a system prompt.</li>
+      </ol>
+    </div>
+
+    <span class="btn-restart" onclick="alert('Start over would go back to the intro screen.')">Start over</span>
+  </div>
+</div>
+
+<script>
+const MOCK_TRANSCRIPT = `Interview with: Abhinav
+Date: April 17, 2026
+
+---
+
+Q1: What do you do — but explain it like you're at a dinner party, not a job interview.
+A: I basically help teams figure out what to build and in what order. I'm a PM at Loom — we make video messaging software. My job is to sit at the intersection of what users need, what's technically possible, and what actually moves the business. Mostly I'm trying to make sure we're not just building stuff for the sake of it.
+
+Q2: What's something you've changed your mind about in the last few years?
+A: I used to think that having a really strong opinion and defending it was the mark of a good PM. Now I think the best PMs are the ones who change their minds fastest when the evidence changes. Strong opinions, loosely held isn't just a saying — it's actually how you ship good products.
+
+Q3: Tell me about something you're genuinely excited about right now.
+A: Okay so we're building this native macOS recorder from scratch — skunkworks, small team, very fast. The goal is to make something that feels so good that when someone sees you using it they ask "what recorder is that?" That question is the north star. I love when a product has a feeling.
+
+Q4: What's something people get wrong about your field?
+A: People always assume PMs are basically project managers with fancier titles. The actual job is making hard calls with incomplete information and then convincing smart people that it was the right call. It's more like being an editor than a manager.
+
+Q5: How would the people who know you best describe the way you communicate?
+A: They'd probably say I'm direct, sometimes to a fault. I'd rather say the uncomfortable thing than dance around it. I also think I'm funnier in writing than in person, which is either a good thing or a red flag.
+
+Q6: Is there a writer or communicator you admire?
+A: The person I think of is Paul Graham. He has this thing where he makes you feel like you're thinking alongside him, not being lectured at. Every essay feels like a discovery, not a conclusion. I want that.
+
+Q7: What kind of writing makes you cringe?
+A: Nothing bothers me more than corporate speak that's designed to sound smart while saying nothing. "Synergize cross-functional stakeholder alignment" — what does that even mean? Also anything that buries the point in three paragraphs of context.
+
+Q8: Which of these feels more like you?
+A: Chose Option B: "We found something that could make a real difference — if we get the right people in the room."
+Because it actually says something. Option A could be written by a robot and no one would know.
+
+Q9: Short and punchy vs thorough and detailed?
+A: It depends, but generally I'd rather read something short that respects my time. If something needs to be long, earn every paragraph.
+
+Q10: What do you write most often?
+A: Mostly I'm writing Slack messages, PRDs, and the occasional doc that's supposed to align a whole team. Also a lot of one-liner comments on Figma files.
+
+Q11: Who's your most common reader?
+A: Honestly, I'm usually writing for engineers. Smart people who have zero patience for vagueness. If I can't explain it clearly, they'll ask me to come back when I've figured it out.
+
+Q12: What do you want readers to feel or do?
+A: I want them to feel like they understand something they didn't before, and then do the next obvious thing without having to ask me.
+
+Q13: Explain a recent decision you made.
+A: I decided to cut a feature from the next sprint even though the team had already started scoping it. The data wasn't there to justify the complexity, and I'd rather ship something tight than something complete-ish.
+
+Q14: Pitch me on something you care about.
+A: Here's the thing — most people don't have a writing style, they just have habits. And most of those habits were formed in school, where the goal was to sound smart, not to communicate. If you actually sat down and figured out what your voice is — what you're optimizing for, what makes you cringe, who you're writing for — you could get 10x better in a week. That's what this interview is trying to do.
+
+Q15: If your writing had one flaw you'd most want to fix?
+A: If I'm being real, I over-explain. I don't trust the reader enough. I'll say something, then immediately say it again a different way just in case. I'm working on it.`;
+
+const SYNTHESIS_SYSTEM_PROMPT = `You are a world-class writing coach and editor. You've just conducted a deep interview with someone about their communication style, taste, and goals.
+
+Based on their answers, create a Personal Writing Guide — a concise, specific, highly personalized reference document they (or any AI) can use to write authentically in their voice.
+
+The guide must feel like it was written *specifically* for this person — not generic advice. Use their own words and phrases wherever possible. Be honest, including about weaknesses.
+
+Please produce TWO artifacts:
+
+---
+
+## ARTIFACT 1: Formatted Writing Guide
+Produce a beautifully formatted, visually rich version of the guide (use headers, callout boxes, bold highlights, pull quotes from their interview — whatever formatting your interface supports). This is the one they'll show people or pin somewhere.
+
+---
+
+## ARTIFACT 2: Markdown Style Guide
+Produce a plain markdown version with these exact sections — clean and copy-pasteable, for use as a system prompt or reference doc:
+
+# [Name]'s Personal Writing Guide
+
+## Voice in One Line
+A single sentence capturing their essence as a communicator.
+
+## Tone
+- Overall feeling, energy, formality level
+
+## Rhythm & Structure
+- Sentence length tendencies, how they build to a point, use of lists vs prose
+
+## Vocabulary
+- Words/phrases that feel natural, ones to avoid, any signature expressions
+
+## What They're Optimizing For
+- What they want readers to feel or do; trust/clarity/action/warmth/authority
+
+## Writing Contexts
+For each context they mentioned, one line on how tone shifts.
+
+## Admire & Aspire
+- Who they admire and what specific qualities they're reaching toward
+
+## What to Avoid
+- Cringe-worthy patterns, known weaknesses, off-brand phrases or structures
+
+## Growth Edge
+The one thing they most want to improve, framed constructively.
+
+## Example Rewrites
+Take 1-2 short phrases or sentences from their actual interview answers and show:
+- **Their words:** (quote)
+- **Polished version:** (rewrite in their voice)
+- **What changed:** (one line explanation)
+
+Be specific. Be honest. Make this feel earned.`;
+
+const FULL_PROMPT = SYNTHESIS_SYSTEM_PROMPT + '\n\n---\n\nHere are the interview answers:\n\n' + MOCK_TRANSCRIPT;
+
+function esc(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+document.getElementById('prompt-preview').textContent = FULL_PROMPT;
+
+function togglePromptExpand() {
+  const preview = document.getElementById('prompt-preview');
+  const btn = document.getElementById('prompt-expand');
+  const expanded = preview.classList.toggle('expanded');
+  btn.textContent = expanded ? 'Show less ↑' : 'Show full prompt ↓';
+}
+
+function copyPrompt() {
+  navigator.clipboard.writeText(FULL_PROMPT).then(() => {
+    const el = document.getElementById('copy-confirm');
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 3000);
+  });
+}
+</script>
+</body>
+</html>
