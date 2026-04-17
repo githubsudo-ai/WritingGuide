@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Abhinav's Personal Writing Guide</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0d1117; --bg2: #111820; --bg3: #161e28;
+      --border:  #1e2a38; --border2: #253040;
+      --text1:   #cdd9e5; --text2: #8b9eb0; --text3: #506070; --text4: #354555;
+      --btn-bg:  #e8f0f8; --btn-text: #0d1117;
+    }
+    :root.light {
+      --bg:      #faf8f4; --bg2: #f4f0ea; --bg3: #ede8e0;
+      --border:  #e0d8cc; --border2: #d0c8bc;
+      --text1:   #1a1208; --text2: #5a4e3a; --text3: #8a7a64; --text4: #b0a090;
+      --btn-bg:  #1a1208; --btn-text: #faf8f4;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg); color: var(--text1);
+      min-height: 100vh; padding: 0;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .mode-toggle {
+      position: fixed; top: 20px; right: 20px; z-index: 100;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 100px; padding: 7px 14px;
+      font-size: 12px; color: var(--text3); cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .mode-toggle:hover { border-color: var(--border2); color: var(--text2); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* Header */
+    .guide-header {
+      border-bottom: 1px solid var(--border);
+      padding: 52px 32px 44px;
+      max-width: 760px; margin: 0 auto;
+      animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .guide-eyebrow {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em;
+      color: var(--text4); margin-bottom: 20px;
+    }
+    .guide-name {
+      font-size: clamp(32px, 6vw, 48px); font-weight: 600;
+      letter-spacing: -0.03em; color: var(--text1); line-height: 1.1;
+      margin-bottom: 8px;
+    }
+    .guide-date { font-size: 13px; color: var(--text4); margin-bottom: 28px; }
+
+    .voice-line {
+      font-size: 18px; line-height: 1.6; color: var(--text2); font-style: italic;
+      border-left: 2px solid #222; padding-left: 20px; max-width: 580px;
+    }
+    .voice-line strong { color: var(--text1); font-style: normal; font-weight: 400; }
+
+    /* Back link */
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text4); text-decoration: none;
+      letter-spacing: 0.05em; margin-bottom: 32px;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--text2); }
+
+    /* Content */
+    .guide-body {
+      max-width: 760px; margin: 0 auto;
+      padding: 0 32px 80px;
+    }
+
+    /* Sections */
+    .section {
+      padding: 36px 0;
+      border-bottom: 1px solid var(--border);
+      animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em;
+      color: var(--text4); margin-bottom: 16px;
+    }
+
+    /* Tone grid */
+    .tone-grid { display: flex; flex-direction: column; gap: 10px; }
+    .tone-row {
+      display: flex; gap: 16px; align-items: baseline;
+    }
+    .tone-key {
+      font-size: 12px; font-weight: 600; color: var(--text3); min-width: 100px;
+      text-transform: uppercase; letter-spacing: 0.08em; flex-shrink: 0;
+    }
+    .tone-val { font-size: 15px; color: var(--text2); line-height: 1.6; }
+
+    /* Rhythm */
+    .rhythm-list { display: flex; flex-direction: column; gap: 12px; }
+    .rhythm-item { display: flex; gap: 14px; }
+    .rhythm-bullet { color: var(--border2); font-size: 18px; line-height: 1.3; flex-shrink: 0; }
+    .rhythm-text { font-size: 15px; color: var(--text2); line-height: 1.65; }
+    .rhythm-text strong { color: var(--text1); font-weight: 500; }
+
+    /* Vocab */
+    .vocab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 560px) { .vocab-grid { grid-template-columns: 1fr; } }
+    .vocab-block {}
+    .vocab-block-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em;
+      color: var(--text4); margin-bottom: 10px;
+    }
+    .vocab-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+    .vocab-tag {
+      font-size: 13px; padding: 5px 12px; border-radius: 100px;
+      border: 1px solid var(--border); color: var(--text3);
+    }
+    .vocab-tag.good { border-color: #1a2a1a; color: #5a8a5a; background: #0a1a0a; }
+    .vocab-tag.bad  { border-color: #2a1a1a; color: #8a5a5a; background: #1a0a0a; }
+
+    /* Contexts table */
+    .ctx-table { width: 100%; border-collapse: collapse; }
+    .ctx-table tr { border-bottom: 1px solid var(--border); }
+    .ctx-table tr:last-child { border-bottom: none; }
+    .ctx-table td { padding: 12px 0; font-size: 14px; vertical-align: top; line-height: 1.6; }
+    .ctx-table td:first-child {
+      font-weight: 600; color: var(--text3); min-width: 160px; padding-right: 20px;
+      font-size: 13px;
+    }
+    .ctx-table td:last-child { color: var(--text2); }
+
+    /* Admire */
+    .admire-list { display: flex; flex-direction: column; gap: 20px; }
+    .admire-item {}
+    .admire-name { font-size: 15px; font-weight: 600; color: var(--text2); margin-bottom: 4px; }
+    .admire-desc { font-size: 14px; color: var(--text3); line-height: 1.65; }
+
+    /* Avoid list */
+    .avoid-list { display: flex; flex-direction: column; gap: 8px; }
+    .avoid-item {
+      display: flex; gap: 12px; align-items: baseline;
+      font-size: 15px; color: var(--text2); line-height: 1.6;
+    }
+    .avoid-item::before { content: '×'; color: var(--text4); flex-shrink: 0; font-size: 14px; }
+
+    /* Growth edge */
+    .growth-box {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 14px;
+      padding: 24px 28px;
+    }
+    .growth-main { font-size: 16px; color: var(--text2); line-height: 1.65; margin-bottom: 16px; }
+    .growth-main strong { color: var(--text1); }
+    .growth-tip { font-size: 13px; color: var(--text3); line-height: 1.7; font-style: italic; }
+
+    /* Example rewrites */
+    .rewrite-list { display: flex; flex-direction: column; gap: 28px; }
+    .rewrite-item {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 14px;
+      overflow: hidden;
+    }
+    .rewrite-block { padding: 18px 22px; }
+    .rewrite-block + .rewrite-block { border-top: 1px solid var(--border); }
+    .rewrite-block-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em;
+      margin-bottom: 8px;
+    }
+    .rewrite-block-label.original { color: var(--text4); }
+    .rewrite-block-label.polished { color: var(--text4); }
+    .rewrite-block-label.changed  { color: var(--text4); }
+    .rewrite-text { font-size: 14px; line-height: 1.7; }
+    .rewrite-text.original { color: var(--text3); font-style: italic; }
+    .rewrite-text.polished { color: #6a9a7a; }
+    .rewrite-text.changed  { color: var(--text3); }
+
+    /* CTA */
+    .guide-cta {
+      margin-top: 48px; padding: 32px; background: var(--bg2);
+      border: 1px solid var(--border); border-radius: 16px; text-align: center;
+      animation: fadeIn 0.8s ease 0.3s both;
+    }
+    .guide-cta p { font-size: 15px; color: var(--text2); margin-bottom: 20px; line-height: 1.6; }
+    .guide-cta a {
+      display: inline-block; background: var(--btn-bg); color: var(--btn-text);
+      border: none; border-radius: 100px; padding: 14px 36px;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      text-decoration: none; transition: background 0.2s;
+    }
+    .guide-cta a:hover { opacity: 0.9; }
+
+    .prose-block p { font-size: 15px; color: var(--text2); line-height: 1.75; }
+    .pull-quote {
+      margin-top: 20px; padding: 16px 20px;
+      border-left: 2px solid var(--border2);
+      font-size: 14px; color: var(--text3); line-height: 1.7; font-style: italic;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  </style>
+</head>
+<body>
+<button class="mode-toggle" onclick="toggleMode()" id="mode-toggle">☀️ Light</button>
+
+<div class="guide-header">
+  <a class="back-link" href="../index.html">← Back</a>
+  <div class="guide-eyebrow">A Personal Writing Guide</div>
+  <div class="guide-name">Writing like Abhinav</div>
+  <div class="guide-date">Product Manager · Atlassian · Builder of Things</div>
+  <div class="voice-line">Warm, direct, and grounded — Abhinav writes like someone explaining something important to a friend over chai: <strong>no pretense, real clarity, and a flash of humor.</strong></div>
+</div>
+
+<div class="guide-body">
+
+  <!-- Tone -->
+  <div class="section" style="animation-delay:0.05s">
+    <div class="section-label">01 — Tone</div>
+    <div class="prose-block">
+      <p>Conversational and approachable, with quiet confidence underneath. Abhinav's energy is that of someone who's genuinely curious and wants you to get it — not impressed by jargon, not performing authority. He earns trust through empathy and plain talk, not polish.</p>
+      <p style="margin-top:12px;">Formality sits at a casual-professional sweet spot: collegial enough for Slack, structured enough for a stakeholder doc. Humor surfaces naturally — never forced, often self-deprecating.</p>
+    </div>
+    <div class="pull-quote">"I am funny and quirky. I'm empathetic to people and people like to talk to me."</div>
+  </div>
+
+  <!-- Rhythm -->
+  <div class="section" style="animation-delay:0.1s">
+    <div class="section-label">02 — Rhythm &amp; Structure</div>
+    <div class="prose-block">
+      <p>Abhinav builds his arguments by layering context before arriving at the point — a natural storyteller's instinct. He tends toward longer, flowing sentences that stack clauses with "and then" connectors.</p>
+      <p style="margin-top:12px;">At his best, he front-loads the takeaway and lets supporting detail follow. At his worst, the buildup delays the punchline too long.</p>
+    </div>
+    <div class="growth-box" style="margin-top:16px;">
+      <div class="growth-main"><strong>The fix:</strong> Lead with the decision or insight. Then explain how you got there. His spoken rhythm — warm, building, connective — translates well to short paragraphs over bullet lists.</div>
+    </div>
+  </div>
+
+  <!-- Vocabulary -->
+  <div class="section" style="animation-delay:0.15s">
+    <div class="section-label">03 — Vocabulary</div>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:16px;line-height:1.6;">Abhinav gravitates toward direct, everyday language. His natural phrases carry warmth and conviction without trying too hard.</p>
+    <div class="vocab-grid">
+      <div class="vocab-block">
+        <div class="vocab-block-label">Words that feel like him</div>
+        <div class="vocab-tags">
+          <span class="vocab-tag good">"the value of…"</span>
+          <span class="vocab-tag good">honestly</span>
+          <span class="vocab-tag good">whatever it takes</span>
+          <span class="vocab-tag good">very clear</span>
+          <span class="vocab-tag good">that's the idea</span>
+          <span class="vocab-tag good">keeps me engaged</span>
+        </div>
+      </div>
+      <div class="vocab-block">
+        <div class="vocab-block-label">Words to avoid</div>
+        <div class="vocab-tags">
+          <span class="vocab-tag bad">leverage</span>
+          <span class="vocab-tag bad">streamline</span>
+          <span class="vocab-tag bad">delve</span>
+          <span class="vocab-tag bad">robust</span>
+          <span class="vocab-tag bad">"it's not X, it's Y"</span>
+          <span class="vocab-tag bad">excessive metaphors</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- What He's Optimizing For -->
+  <div class="section" style="animation-delay:0.18s">
+    <div class="section-label">04 — What He's Optimizing For</div>
+    <div class="rhythm-list">
+      <div class="rhythm-item"><span class="rhythm-bullet">—</span><span class="rhythm-text"><strong>Trust first.</strong> Readers should finish and think: I believe this person.</span></div>
+      <div class="rhythm-item"><span class="rhythm-bullet">—</span><span class="rhythm-text"><strong>Clarity second.</strong> "Very clear what they're writing… you get whatever they're trying to explain very quickly."</span></div>
+      <div class="rhythm-item"><span class="rhythm-bullet">—</span><span class="rhythm-text"><strong>Feeling third.</strong> He wants writing that makes readers <em>feel something</em> — not just process information.</span></div>
+    </div>
+    <div class="pull-quote">"I want them to definitely trust me, feel something, and they should come out of that like — oh, this was such a nicely written piece and I'm very clear about everything the person wanted to convey."</div>
+  </div>
+
+  <!-- Contexts -->
+  <div class="section" style="animation-delay:0.2s">
+    <div class="section-label">05 — Writing Contexts</div>
+    <table class="ctx-table">
+      <tr><td>Slack</td><td>Quick, warm, direct. Humor welcome. His most frequent writing — keep it punchy and human.</td></tr>
+      <tr><td>Product Docs</td><td>Structured but not sterile. Leads with the "so what" for engineering, design, and stakeholders.</td></tr>
+      <tr><td>Blog Posts</td><td>Aspirational territory. Aiming for the Shreyas/Shane register: clear, emotionally resonant, concise.</td></tr>
+      <tr><td>LinkedIn (someday)</td><td>Not active yet, but wants to be. Same voice — warm authority, no performative thought-leadership.</td></tr>
+    </table>
+  </div>
+
+  <!-- Admire -->
+  <div class="section" style="animation-delay:0.25s">
+    <div class="section-label">06 — Admire &amp; Aspire</div>
+    <div class="admire-list">
+      <div class="admire-item">
+        <div class="admire-name">Shreyas Doshi</div>
+        <div class="admire-desc">Straight talk. No wasted words. Says the thing product people are thinking but haven't articulated yet.</div>
+      </div>
+      <div class="admire-item">
+        <div class="admire-name">Shane Parrish</div>
+        <div class="admire-desc">Emotional appeal with intellectual clarity. Writes in a way that feels effortless but lands hard. "It appeals emotionally… you get whatever they're trying to explain very quickly."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Avoid -->
+  <div class="section" style="animation-delay:0.3s">
+    <div class="section-label">07 — What to Avoid</div>
+    <div class="avoid-list">
+      <div class="avoid-item">Beating around the bush — his own admitted weakness</div>
+      <div class="avoid-item">Long, clause-heavy sentences that bury the point</div>
+      <div class="avoid-item">Jargon-stuffed corporate speak</div>
+      <div class="avoid-item">Overloaded metaphors or forced comparisons</div>
+      <div class="avoid-item">Excessive slang or trying too hard to sound casual</div>
+      <div class="avoid-item">"AI speak" — the generic, polished-but-hollow patterns of AI-generated text</div>
+      <div class="avoid-item">Negation parallelisms: "it's not just X — it's Y"</div>
+    </div>
+  </div>
+
+  <!-- Growth Edge -->
+  <div class="section" style="animation-delay:0.35s">
+    <div class="section-label">08 — Growth Edge</div>
+    <div class="growth-box">
+      <div class="growth-main"><strong>Tightening the loop.</strong> Abhinav's instinct is to build context and arrive at the point — a storyteller's habit. The growth is learning to state the point first, then layer in the "why." He already knows this: <em>"I beat around the bush quite a bit and I might write way too long sentences for it to get that point convoluted."</em> The voice is strong. The editing muscle is what's developing.</div>
+    </div>
+  </div>
+
+  <!-- Example Rewrites -->
+  <div class="section" style="animation-delay:0.4s">
+    <div class="section-label">09 — Example Rewrites</div>
+    <div class="rewrite-list">
+
+      <div class="rewrite-item">
+        <div class="rewrite-block">
+          <div class="rewrite-block-label original">His words</div>
+          <div class="rewrite-text original">"Basically, the product manager is like a CEO of a product. I am responsible for what the product does, what is responsible part of the product. I talk to the users, I think about the roadmap of the product and what features are being worked upon, what features need to be worked upon, whatever it takes for the product to be loved by users, used by users and to earn money."</div>
+        </div>
+        <div class="rewrite-block">
+          <div class="rewrite-block-label polished">Polished — in his voice</div>
+          <div class="rewrite-text polished">"I'm basically the CEO of my product. I talk to users, own the roadmap, and figure out what to build next — whatever it takes for people to love it and for it to make money."</div>
+        </div>
+        <div class="rewrite-block">
+          <div class="rewrite-block-label changed">What changed</div>
+          <div class="rewrite-text changed">Collapsed repetitive clauses. Kept "whatever it takes" — that's pure Abhinav. Front-loaded the role, trimmed the explanation.</div>
+        </div>
+      </div>
+
+      <div class="rewrite-item">
+        <div class="rewrite-block">
+          <div class="rewrite-block-label original">His words</div>
+          <div class="rewrite-text original">"I think I've changed my mind about the importance of routine and discipline. I was very like a free spirit guy and then I got married and then there was always some fights with me and my wife about routine and discipline and things the way they need to be kept."</div>
+        </div>
+        <div class="rewrite-block">
+          <div class="rewrite-block-label polished">Polished — in his voice</div>
+          <div class="rewrite-text polished">"I used to think routine was the enemy of freedom. Then I got married, had kids, and realized: in a chaotic world, predictability is the gift."</div>
+        </div>
+        <div class="rewrite-block">
+          <div class="rewrite-block-label changed">What changed</div>
+          <div class="rewrite-text changed">Distilled a winding narrative into a tight arc. Preserved his core insight — "the value of predictability in this total chaotic world" — and gave it a sharper landing.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="guide-cta">
+    <p>This is what you'll get at the end of the interview.<br>15 questions, ~15 minutes. No sign-up, no backend.</p>
+    <a href="../index.html">Get your own →</a>
+  </div>
+
+</div>
+
+<script>
+function toggleMode() {
+  const isLight = document.documentElement.classList.toggle('light');
+  const btn = document.getElementById('mode-toggle');
+  if (btn) btn.textContent = isLight ? '🌙 Dark' : '☀️ Light';
+  localStorage.setItem('mode', isLight ? 'light' : 'dark');
+}
+if (localStorage.getItem('mode') === 'light') {
+  document.documentElement.classList.add('light');
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('mode-toggle');
+    if (btn) btn.textContent = '🌙 Dark';
+  });
+}
+</script>
+</body>
+</html>

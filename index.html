@@ -7,6 +7,38 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── Color tokens ──────────────────────────────────── */
+    :root {
+      --bg:        #0d1117;
+      --bg2:       #111820;
+      --bg3:       #161e28;
+      --border:    #1e2a38;
+      --border2:   #253040;
+      --text1:     #cdd9e5;
+      --text2:     #8b9eb0;
+      --text3:     #506070;
+      --text4:     #354555;
+      --accent:    #e8f0f8;
+      --btn-bg:    #e8f0f8;
+      --btn-text:  #0d1117;
+      --grain-op:  0.03;
+    }
+    :root.light {
+      --bg:        #faf8f4;
+      --bg2:       #f4f0ea;
+      --bg3:       #ede8e0;
+      --border:    #e0d8cc;
+      --border2:   #d0c8bc;
+      --text1:     #1a1208;
+      --text2:     #5a4e3a;
+      --text3:     #8a7a64;
+      --text4:     #b0a090;
+      --accent:    #1a1208;
+      --btn-bg:    #1a1208;
+      --btn-text:  #faf8f4;
+      --grain-op:  0.02;
+    }
+
     @keyframes grain {
       0%,100% { transform: translate(0,0); }
       10% { transform: translate(-2%,-3%); }
@@ -47,22 +79,32 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #0a0a0a; color: #f0f0f0;
+      background: var(--bg); color: var(--text1);
       min-height: 100vh; display: flex; flex-direction: column;
       align-items: center; justify-content: center; padding: 32px;
-      overflow-x: hidden;
+      overflow-x: hidden; transition: background 0.3s ease, color 0.3s ease;
     }
 
-    /* Subtle animated grain overlay */
+    /* Grain overlay */
     body::before {
       content: '';
       position: fixed; inset: -50%;
       width: 200%; height: 200%;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
-      opacity: 0.025;
+      opacity: var(--grain-op);
       animation: grain 8s steps(2) infinite;
       pointer-events: none; z-index: 0;
     }
+
+    /* Mode toggle */
+    .mode-toggle {
+      position: fixed; top: 20px; right: 20px; z-index: 100;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 100px; padding: 7px 14px;
+      font-size: 12px; color: var(--text3); cursor: pointer;
+      transition: all 0.2s ease; display: flex; align-items: center; gap: 6px;
+    }
+    .mode-toggle:hover { border-color: var(--border2); color: var(--text2); }
 
     .container {
       width: 100%; max-width: 640px;
@@ -76,81 +118,115 @@
     }
     .intro-eyebrow {
       font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
-      color: #333; margin-bottom: 36px;
+      color: var(--text4); margin-bottom: 36px;
       animation: fadeIn 1.2s ease both;
     }
     .intro h1 {
       font-size: clamp(36px, 7vw, 56px); font-weight: 600;
       letter-spacing: -0.04em; line-height: 1.1;
-      color: #f8f8f8; margin-bottom: 20px;
+      color: var(--text1); margin-bottom: 20px;
       animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s both;
     }
     .intro-sub {
-      font-size: 17px; color: #b0b0b0; line-height: 1.7;
+      font-size: 17px; color: var(--text2); line-height: 1.7;
       max-width: 420px; margin-bottom: 52px;
       animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.25s both;
     }
-    .intro-sub em { color: #d8d8d8; font-style: normal; }
+    .intro-sub em { color: var(--text1); font-style: normal; }
     .name-block {
       width: 100%; max-width: 320px;
       animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.4s both;
     }
     .name-label {
       font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-      color: #333; display: block; margin-bottom: 12px; text-align: left;
+      color: var(--text3); display: block; margin-bottom: 12px; text-align: left;
     }
     .name-input {
       width: 100%; background: transparent; border: none;
-      border-bottom: 1px solid #2a2a2a; color: #f0f0f0;
+      border-bottom: 1px solid var(--border); color: var(--text1);
       font-size: 22px; font-weight: 400; letter-spacing: -0.01em;
       padding: 8px 0 12px; outline: none; font-family: inherit;
-      transition: border-color 0.3s ease; caret-color: #fff;
+      transition: border-color 0.3s ease; caret-color: var(--text1);
     }
-    .name-input::placeholder { color: #2a2a2a; }
-    .name-input:focus { border-color: #555; }
-    /* Blinking cursor decoration on intro */
+    .name-input::placeholder { color: var(--border2); }
+    .name-input:focus { border-color: var(--border2); }
     .cursor-blink {
       display: inline-block; width: 2px; height: 1.1em;
-      background: #f0f0f0; margin-left: 3px; vertical-align: middle;
-      animation: blink 1s steps(2) infinite;
-      border-radius: 1px;
+      background: var(--text1); margin-left: 3px; vertical-align: middle;
+      animation: blink 1s steps(2) infinite; border-radius: 1px;
     }
     .btn-start {
-      margin-top: 40px; background: #f0f0f0; color: #0a0a0a;
+      margin-top: 40px; background: var(--btn-bg); color: var(--btn-text);
       border: none; border-radius: 100px;
       padding: 16px 48px; font-size: 16px; font-weight: 600;
       cursor: pointer; letter-spacing: -0.01em;
       transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
       animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.55s both;
-      box-shadow: 0 8px 0 rgba(255,255,255,0.06);
+      box-shadow: 0 8px 0 rgba(0,0,0,0.12);
     }
-    .btn-start:hover:not(:disabled) {
-      background: #fff;
-      box-shadow: 0 4px 0 rgba(255,255,255,0.06), 0 0 40px rgba(255,255,255,0.1);
-      transform: translateY(3px);
+    .btn-start:hover:not(:disabled) { opacity: 0.9; transform: translateY(3px); box-shadow: 0 4px 0 rgba(0,0,0,0.12); }
+    .btn-start:active:not(:disabled) { transform: translateY(6px); box-shadow: 0 0 0 rgba(0,0,0,0.12); }
+    .btn-start:disabled { background: var(--bg3); color: var(--text4); cursor: not-allowed; box-shadow: none; transform: none; }
+
+    /* AI inline logos in subtitle */
+    .ai-inline {
+      display: inline-flex; align-items: center; gap: 4px;
+      white-space: nowrap;
     }
-    .btn-start:active:not(:disabled) {
-      transform: translateY(6px);
-      box-shadow: 0 0 0 rgba(255,255,255,0.06);
+    .ai-inline img { width: 14px; height: 14px; object-fit: contain; vertical-align: middle; border-radius: 3px; }
+
+    /* Teaser card */
+    .teaser-card {
+      margin-top: 52px; width: 100%; max-width: 480px;
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden; animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.7s both;
+      text-decoration: none; display: block; cursor: pointer;
+      transition: border-color 0.2s ease;
     }
-    .btn-start:disabled { background: #161616; color: #2a2a2a; cursor: not-allowed; box-shadow: none; transform: none; }
+    .teaser-card:hover { border-color: var(--border2); }
+    .teaser-card:hover .teaser-see { color: var(--text2); }
+    .teaser-inner { padding: 22px 24px; position: relative; }
+    .teaser-tag {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 0.16em;
+      color: var(--text4); margin-bottom: 14px;
+    }
+    .teaser-voice {
+      font-size: 15px; font-weight: 500; color: var(--text2); line-height: 1.5;
+      margin-bottom: 14px; font-style: italic;
+    }
+    .teaser-voice span { color: var(--text1); }
+    .teaser-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .teaser-pill {
+      font-size: 11px; color: var(--text4); border: 1px solid var(--border);
+      border-radius: 100px; padding: 4px 10px;
+    }
+    .teaser-fade {
+      height: 48px; background: linear-gradient(transparent, var(--bg2));
+      margin-top: -48px; position: relative;
+    }
+    .teaser-footer {
+      border-top: 1px solid var(--border); padding: 12px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .teaser-name { font-size: 12px; color: var(--text4); }
+    .teaser-see { font-size: 12px; color: var(--text3); transition: color 0.2s; }
 
     /* ── Question page ─────────────────────────────────── */
     .q-phase {
       font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
-      color: #2a2a2a; margin-bottom: 48px;
+      color: var(--text4); margin-bottom: 48px;
       animation: fadeIn 0.6s ease both;
     }
-    .q-phase .phase-current { color: #444; }
+    .q-phase .phase-current { color: var(--text3); }
 
     .question {
       font-size: clamp(22px, 4vw, 30px); font-weight: 500;
-      line-height: 1.35; color: #ebebeb; margin-bottom: 10px;
+      line-height: 1.35; color: var(--text1); margin-bottom: 10px;
       letter-spacing: -0.02em;
       animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.05s both;
     }
     .question-hint {
-      font-size: 14px; color: #6a6a6a; margin-bottom: 36px;
+      font-size: 14px; color: var(--text3); margin-bottom: 36px;
       line-height: 1.6; font-style: italic;
       animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.15s both;
     }
@@ -158,27 +234,27 @@
     /* Inputs */
     textarea {
       width: 100%; background: transparent; border: none;
-      border-bottom: 1px solid #1e1e1e; color: #d8d8d8;
+      border-bottom: 1px solid var(--border); color: var(--text1);
       font-size: 17px; line-height: 1.75; padding: 12px 0 16px;
       resize: none; outline: none; font-family: inherit;
-      transition: border-color 0.3s ease; caret-color: #fff;
+      transition: border-color 0.3s ease; caret-color: var(--text1);
       animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.2s both;
       min-height: 90px;
     }
-    textarea::placeholder { color: #282828; }
-    textarea:focus { border-color: #383838; }
+    textarea::placeholder { color: var(--border2); }
+    textarea:focus { border-color: var(--border2); }
     input[type="text"] {
-      background: transparent; border: none; color: #f0f0f0;
+      background: transparent; border: none; color: var(--text1);
       font-family: inherit; outline: none;
     }
 
     /* Voice tip */
     .voice-tip {
-      margin-top: 16px; font-size: 13px; color: #6a6a6a; line-height: 1.6;
+      margin-top: 16px; font-size: 13px; color: var(--text3); line-height: 1.6;
       animation: fadeIn 0.7s ease 0.35s both;
-      border-left: 2px solid #2a2a2a; padding-left: 12px;
+      border-left: 2px solid var(--border); padding-left: 12px;
     }
-    .voice-tip strong { color: #8a8a8a; font-weight: 500; }
+    .voice-tip strong { color: var(--text2); font-weight: 500; }
 
     /* A/B options */
     .ab-options {
@@ -186,14 +262,14 @@
       animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.2s both;
     }
     .ab-option {
-      background: #0e0e0e; border: 1px solid #1e1e1e; border-radius: 14px;
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 14px;
       padding: 20px 22px; cursor: pointer;
       transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
-      font-size: 15px; line-height: 1.6; color: #8a8a8a;
+      font-size: 15px; line-height: 1.6; color: var(--text2);
     }
-    .ab-option:hover { border-color: #383838; color: #c8c8c8; background: #121212; }
-    .ab-option.selected { border-color: #555; color: #f0f0f0; background: #161616; }
-    .ab-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: #3a3a3a; margin-bottom: 10px; }
+    .ab-option:hover { border-color: var(--border2); color: var(--text1); background: var(--bg3); }
+    .ab-option.selected { border-color: var(--text3); color: var(--text1); background: var(--bg3); }
+    .ab-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text4); margin-bottom: 10px; }
 
     /* Controls */
     .controls {
@@ -202,19 +278,19 @@
       animation: fadeIn 0.7s ease 0.3s both;
     }
     .skip-link {
-      font-size: 13px; color: #404040; cursor: pointer;
+      font-size: 13px; color: var(--text3); cursor: pointer;
       text-underline-offset: 3px; transition: color 0.2s;
     }
-    .skip-link:hover { color: #888; }
+    .skip-link:hover { color: var(--text2); }
     .btn-next {
-      background: #f0f0f0; color: #0a0a0a; border: none; border-radius: 100px;
+      background: var(--btn-bg); color: var(--btn-text); border: none; border-radius: 100px;
       padding: 13px 32px; font-size: 15px; font-weight: 600; cursor: pointer;
       transition: all 0.2s cubic-bezier(0.16,1,0.3,1); letter-spacing: -0.01em;
-      box-shadow: 0 6px 0 rgba(255,255,255,0.05);
+      box-shadow: 0 6px 0 rgba(0,0,0,0.12);
     }
-    .btn-next:hover:not(:disabled) { background: #fff; transform: translateY(3px); box-shadow: 0 3px 0 rgba(255,255,255,0.05), 0 0 30px rgba(255,255,255,0.08); }
+    .btn-next:hover:not(:disabled) { opacity: 0.9; transform: translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,0.12); }
     .btn-next:active:not(:disabled) { transform: translateY(5px); box-shadow: none; }
-    .btn-next:disabled { background: #141414; color: #2a2a2a; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-next:disabled { background: var(--bg3); color: var(--text4); cursor: not-allowed; transform: none; box-shadow: none; }
 
     /* Dots progress */
     .dots-row {
@@ -223,48 +299,48 @@
     }
     .dot {
       width: 4px; height: 4px; border-radius: 50%;
-      background: #1e1e1e; transition: background 0.4s ease, width 0.4s cubic-bezier(0.16,1,0.3,1);
+      background: var(--border); transition: background 0.4s ease, width 0.4s cubic-bezier(0.16,1,0.3,1);
     }
-    .dot.done { background: #505050; animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
-    .dot.active { background: #aaa; width: 18px; border-radius: 4px; animation: activePulse 1.8s ease-in-out infinite; }
+    .dot.done { background: var(--text3); animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .dot.active { background: var(--text2); width: 18px; border-radius: 4px; animation: activePulse 1.8s ease-in-out infinite; }
 
     /* Follow-up bubble */
     .followup-bubble {
-      margin-top: 28px; border-top: 1px solid #161616;
+      margin-top: 28px; border-top: 1px solid var(--border);
       padding-top: 20px; display: none;
     }
-    .followup-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: #4a4a4a; margin-bottom: 10px; }
+    .followup-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text3); margin-bottom: 10px; }
     .followup-bubble textarea { margin-top: 0; font-size: 15px; min-height: 56px; animation: none; }
 
     /* Final prompt screen */
     .final-screen {}
-    .final-screen h1 { font-size: 32px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.02em; animation: slideDown 0.6s cubic-bezier(0.16,1,0.3,1) 0.05s both; }
-    .final-screen .subtitle { font-size: 16px; color: #909090; margin-bottom: 36px; line-height: 1.5; animation: fadeUp 0.6s ease 0.2s both; }
+    .final-screen h1 { font-size: 32px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.02em; color: var(--text1); animation: slideDown 0.6s cubic-bezier(0.16,1,0.3,1) 0.05s both; }
+    .final-screen .subtitle { font-size: 16px; color: var(--text2); margin-bottom: 36px; line-height: 1.5; animation: fadeUp 0.6s ease 0.2s both; }
 
     /* Hero copy block */
     .prompt-hero {
-      background: #141414; border: 1px solid #2a2a2a; border-radius: 16px;
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 16px;
       overflow: hidden; margin-bottom: 16px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.5);
       animation: fadeUp 0.6s ease 0.3s both;
     }
     .prompt-preview {
-      padding: 20px 24px; font-size: 14px; line-height: 1.75; color: #777;
+      padding: 20px 24px; font-size: 14px; line-height: 1.75; color: var(--text3);
       white-space: pre-wrap; font-family: 'SF Mono', 'Fira Mono', monospace;
       max-height: 110px; overflow: hidden; position: relative;
     }
     .prompt-preview::after {
       content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 48px;
-      background: linear-gradient(transparent, #141414);
+      background: linear-gradient(transparent, var(--bg2));
     }
     .prompt-preview.expanded { max-height: 420px; overflow-y: auto; }
     .prompt-preview.expanded::after { display: none; }
     .prompt-expand {
       border-top: 1px solid #1e1e1e; padding: 10px 24px;
-      font-size: 12px; color: #444; cursor: pointer; text-align: center;
+      font-size: 12px; color: var(--text3); cursor: pointer; text-align: center;
       transition: color 0.2s; user-select: none;
     }
-    .prompt-expand:hover { color: #888; }
+    .prompt-expand:hover { color: var(--text2); }
 
     .btn-copy-hero {
       width: 100%; background: #fff; color: #000; border: none; border-radius: 10px;
@@ -275,14 +351,14 @@
     .btn-copy-hero:hover { background: #e0e0e0; transform: translateY(-1px); }
     .btn-copy-hero:active { transform: translateY(0); }
     .copy-confirm {
-      text-align: center; font-size: 14px; color: #4caf50;
+      text-align: center; font-size: 14px; color: #4a9a6a;
       margin-top: 12px; display: none; min-height: 20px;
     }
 
-    .final-divider { border: none; border-top: 1px solid #1a1a1a; margin: 28px 0; }
+    .final-divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
 
-    .how-to { font-size: 14px; color: #787878; line-height: 1.9; animation: fadeIn 0.6s ease 0.5s both; }
-    .how-to strong { color: #a0a0a0; font-weight: 500; }
+    .how-to { font-size: 14px; color: var(--text2); line-height: 1.9; animation: fadeIn 0.6s ease 0.5s both; }
+    .how-to strong { color: var(--text1); font-weight: 500; }
     .how-to ol { padding-left: 18px; }
     .how-to ol li { margin-bottom: 4px; }
 
@@ -298,13 +374,13 @@
     }
     .ai-btn {
       display: flex; align-items: center; gap: 8px;
-      background: #111; border: 1px solid #222; border-radius: 10px;
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
       padding: 10px 16px; cursor: pointer; text-decoration: none;
-      font-size: 13px; font-weight: 500; color: #888;
+      font-size: 13px; font-weight: 500; color: var(--text2);
       transition: all 0.2s ease; flex: 1; min-width: 120px;
       justify-content: center; white-space: nowrap;
     }
-    .ai-btn:hover { border-color: #444; color: #e0e0e0; background: #181818; transform: translateY(-1px); }
+    .ai-btn:hover { border-color: var(--border2); color: var(--text1); background: var(--bg3); transform: translateY(-1px); }
     .ai-btn img { width: 18px; height: 18px; flex-shrink: 0; object-fit: contain; display: block; }
 
     /* Artifact section */
@@ -314,36 +390,37 @@
     }
     .artifact-eyebrow {
       font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em;
-      color: #3a3a3a; margin-bottom: 8px;
+      color: var(--text4); margin-bottom: 8px;
     }
     .artifact-heading {
-      font-size: 15px; font-weight: 500; color: #888; margin-bottom: 6px;
+      font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 6px;
     }
     .artifact-sub {
-      font-size: 13px; color: #484848; line-height: 1.6; margin-bottom: 16px;
+      font-size: 13px; color: var(--text3); line-height: 1.6; margin-bottom: 16px;
     }
     .btn-artifact {
       display: inline-flex; align-items: center; gap: 8px;
-      background: transparent; border: 1px solid #2a2a2a; border-radius: 8px;
-      padding: 10px 18px; font-size: 13px; font-weight: 500; color: #666;
+      background: transparent; border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 18px; font-size: 13px; font-weight: 500; color: var(--text3);
       cursor: pointer; text-decoration: none; transition: all 0.2s ease;
     }
-    .btn-artifact:hover { border-color: #555; color: #ccc; background: #141414; }
+    .btn-artifact:hover { border-color: var(--border2); color: var(--text1); background: var(--bg3); }
     .btn-artifact img { width: 15px; height: 15px; object-fit: contain; }
 
     .btn-restart {
-      display: inline-block; margin-top: 20px; font-size: 13px; color: #444;
+      display: inline-block; margin-top: 20px; font-size: 13px; color: var(--text3);
       cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
       transition: color 0.2s; animation: fadeIn 0.6s ease 0.6s both;
     }
-    .btn-restart:hover { color: #888; }
+    .btn-restart:hover { color: var(--text2); }
 
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
   </style>
 </head>
 <body>
+<button class="mode-toggle" onclick="toggleMode()" id="mode-toggle">☀️ Light</button>
 <div class="container" id="app"></div>
 <script>
 const PHASES = { 1: 'Phase 1 — Voice Discovery', 2: 'Phase 2 — Taste Calibration', 3: 'Phase 3 — Context Mapping', 4: 'Phase 4 — Writing Prompts' };
@@ -383,6 +460,7 @@ const app = document.getElementById('app');
 
 function render() {
   if (state.screen === 'intro') renderIntro();
+  else if (state.screen === 'name') renderNameScreen();
   else if (state.screen === 'question') renderQuestion();
   else if (state.screen === 'final') renderFinal();
 }
@@ -391,12 +469,45 @@ function renderIntro() {
   app.innerHTML = `
     <div class="intro">
       <div class="intro-eyebrow">Personal Writing Guide</div>
-      <h1>Teach AI to write<br>exactly like you.<span class="cursor-blink"></span></h1>
-      <p class="intro-sub">15 honest questions about how you think and communicate. At the end, you get a prompt to paste into <em>Claude, ChatGPT, or Gemini</em> — it'll write in your voice.</p>
-      <div class="name-block">
-        <label class="name-label" for="name-input">Your first name</label>
+      <h1>Teach AI to write<br>exactly like you.</h1>
+      <p class="intro-sub">15 questions about how you think and communicate. At the end, paste your prompt into
+        <span class="ai-inline"><img src="icons/atlassian-rovo-icon.webp" alt="Rovo">Rovo Chat</span>,
+        <span class="ai-inline"><img src="icons/ChatGPT-Logo.svg.png" alt="ChatGPT">ChatGPT</span>,
+        <span class="ai-inline"><img src="icons/gemini.webp" alt="Gemini">Gemini</span>,
+        <span class="ai-inline"><img src="icons/Claude_AI_symbol.svg" alt="Claude">Claude</span>
+        — it'll write in your voice.
+      </p>
+      <button class="btn-start" id="btn-start" onclick="goToName()" style="animation-delay:0.4s">Begin →</button>
+      <a class="teaser-card" href="docs/example.html" target="_blank">
+        <div class="teaser-inner">
+          <div class="teaser-tag">Example output — Writing like Abhinav</div>
+          <div class="teaser-voice">"<span>Warm, direct, and grounded — writes like someone explaining something important to a friend over chai: no pretense, real clarity, and a flash of humor.</span>"</div>
+          <div class="teaser-pills">
+            <span class="teaser-pill">Conversational</span>
+            <span class="teaser-pill">Direct</span>
+            <span class="teaser-pill">Low-to-medium formality</span>
+            <span class="teaser-pill">Dry humor</span>
+            <span class="teaser-pill">Clarity over cleverness</span>
+          </div>
+        </div>
+        <div class="teaser-fade"></div>
+        <div class="teaser-footer">
+          <span class="teaser-name">Abhinav Singh &nbsp;·&nbsp; April 2026</span>
+          <span class="teaser-see">See full example ↗</span>
+        </div>
+      </a>
+    </div>`;
+}
+
+function renderNameScreen() {
+  app.innerHTML = `
+    <div class="intro">
+      <div class="intro-eyebrow">Let's get started</div>
+      <h1>What's your<br>first name?</h1>
+      <div class="name-block" style="margin-top:40px;">
+        <label class="name-label" for="name-input">First name</label>
         <input class="name-input" type="text" id="name-input" placeholder="e.g. Abhinav" oninput="onNameInput(this)" autocomplete="given-name" />
-        <button class="btn-start" id="btn-start" onclick="startInterview()" disabled>Begin →</button>
+        <button class="btn-start" id="btn-start" onclick="startInterview()" disabled style="margin-top:36px;font-size:20px;padding:18px 56px;letter-spacing:-0.02em;">BEGIN</button>
       </div>
     </div>`;
   setTimeout(() => document.getElementById('name-input').focus(), 120);
@@ -687,6 +798,11 @@ function skipQuestion() {
   }
 }
 
+function goToName() {
+  state.screen = 'name';
+  fade(() => renderNameScreen());
+}
+
 function startInterview() {
   if (!state.name) return;
   state.screen = 'question';
@@ -744,6 +860,23 @@ function copyAndOpen(url) {
 // ── Escape HTML ───────────────────────────────────────────────────────────────
 function esc(str) {
   return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Mode toggle ───────────────────────────────────────────────────────────────
+function toggleMode() {
+  const isLight = document.documentElement.classList.toggle('light');
+  const btn = document.getElementById('mode-toggle');
+  if (btn) btn.textContent = isLight ? '🌙 Dark' : '☀️ Light';
+  localStorage.setItem('mode', isLight ? 'light' : 'dark');
+}
+
+// Restore saved mode
+if (localStorage.getItem('mode') === 'light') {
+  document.documentElement.classList.add('light');
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('mode-toggle');
+    if (btn) btn.textContent = '🌙 Dark';
+  });
 }
 
 // Init
