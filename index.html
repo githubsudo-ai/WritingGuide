@@ -423,26 +423,36 @@
 <button class="mode-toggle" onclick="toggleMode()" id="mode-toggle">☀️ Light</button>
 <div class="container" id="app"></div>
 <script>
-const PHASES = { 1: 'Phase 1 — Voice Discovery', 2: 'Phase 2 — Taste Calibration', 3: 'Phase 3 — Context Mapping', 4: 'Phase 4 — Writing Prompts' };
+const PHASES = { 1: 'Voice Discovery', 2: 'Taste Calibration', 3: 'Writing Samples', 4: 'Quick Preferences' };
 
 const QUESTIONS = [
-  { id:1, phase:1, q:"What do you do — but explain it like you're at a dinner party, not a job interview.", hint:"Don't overthink it. Just talk.", type:"text", placeholder:"I basically..." },
-  { id:2, phase:1, q:"What's something you've changed your mind about in the last few years?", hint:"Work, life, anything. How did your thinking shift?", type:"text", placeholder:"I used to think..." },
-  { id:3, phase:1, q:"Tell me about something you're genuinely excited about right now.", hint:"Drop the filters. What actually gets you going?", type:"text", placeholder:"Okay so..." },
-  { id:4, phase:1, q:"What's something people get wrong about your field or your work — that quietly frustrates you?", hint:"Be honest. Nobody's grading you.", type:"text", placeholder:"People always assume..." },
-  { id:5, phase:1, q:"How would the people who know you best describe the way you communicate?", hint:"What would they say about how you write or talk?", type:"text", placeholder:"They'd probably say..." },
-  { id:6, phase:2, q:"Is there a writer or communicator whose words you genuinely admire? What do they do that you wish you did?", hint:"Author, newsletter, tweets, a colleague — anyone.", type:"text", placeholder:"The person I think of is..." },
-  { id:7, phase:2, q:"What kind of writing makes you cringe or roll your eyes?", hint:"Be specific. The more honest, the better.", type:"text", placeholder:"Nothing bothers me more than..." },
-  { id:8, phase:2, q:"Which of these feels more like you? Gut reaction.", hint:"Don't overthink. Which one would you rather have written?", type:"ab",
-    optionA:'"We\'ve identified a strategic opportunity to enhance cross-functional alignment and drive meaningful outcomes for our stakeholders."',
-    optionB:'"We found something that could make a real difference — if we get the right people in the room."' },
-  { id:9, phase:2, q:"Do you prefer reading something short and punchy, or thorough and detailed?", hint:"Does your answer change depending on what you're reading?", type:"text", placeholder:"It depends, but generally..." },
-  { id:10, phase:3, q:"What do you write most often? Think about the last week.", hint:"Emails, Slack, docs, social posts, reports — whatever comes to mind.", type:"text", placeholder:"Mostly I'm writing..." },
-  { id:11, phase:3, q:"Who's your most common reader? Is there one person you find yourself writing for most often?", hint:"Real or imagined — a specific person changes everything.", type:"text", placeholder:"Honestly, I'm usually writing for..." },
-  { id:12, phase:3, q:"When someone finishes reading something you wrote, what's the one thing you want them to feel or do?", hint:"Trust you? Take action? Feel something? Be clear?", type:"text", placeholder:"I want them to..." },
-  { id:13, phase:4, q:"Explain a recent decision you made in 2-3 sentences. Could be tiny.", hint:"Short. Instinctive. Don't overthink the writing.", type:"text", placeholder:"I decided to..." },
-  { id:14, phase:4, q:"Pitch me on something you care about. 4-5 sentences. Go.", hint:"Anything — a project, an idea, a product, a habit.", type:"text", placeholder:"Here's the thing..." },
-  { id:15, phase:4, q:"Last one. If your writing had one flaw you'd most want to fix, what would it be?", hint:"Be honest with yourself.", type:"text", placeholder:"If I'm being real..." }
+  // Phase 1 — Voice Discovery (3 text questions)
+  { id:1, phase:1, q:"Introduce yourself in 3 sentences — like you're texting an old friend who asked what you're up to.", hint:"Be casual. The way you actually talk to people who know you.", type:"text", placeholder:"So basically..." },
+  { id:2, phase:1, q:"What's something you've changed your mind about recently? Talk it through.", hint:"Work, life, anything. We want to hear how you think out loud.", type:"text", placeholder:"I used to think..." },
+  { id:3, phase:1, q:"Who's your most common reader, and what should they feel after reading something you wrote?", hint:"Real or imagined — and what's the goal? Trust? Action? Clarity?", type:"text", placeholder:"Honestly, I'm usually writing for..." },
+
+  // Phase 2 — Taste Calibration (2 text questions)
+  { id:4, phase:2, q:"What kind of writing makes you cringe? Give 2-3 specific phrases or patterns.", hint:"Be brutally specific. The more honest, the better.", type:"text", placeholder:"Nothing bothers me more than..." },
+  { id:5, phase:2, q:"If your writing had one flaw you'd most want to fix, what would it be?", hint:"Be honest with yourself.", type:"text", placeholder:"If I'm being real..." },
+
+  // Phase 3 — Writing Samples (3 text — one optional)
+  { id:6, phase:3, q:"Write a 4-sentence pitch for something you actually care about. Go.", hint:"A project, an idea, a product, a habit — anything. Just write it the way you'd say it.", type:"text", placeholder:"Here's the thing..." },
+  { id:7, phase:3, q:"When you're not 100% sure about something in writing, how do you say it? Type it out the way you actually would.", hint:"Show us your hedge. How do you say \"I think this but maybe not\"?", type:"text", placeholder:"I'm not totally sure but..." },
+  { id:8, phase:3, q:"Drop in 3-4 quick replies or Slack-style messages you'd typically write. Made-up is fine.", hint:"Optional but powerful — if you've got a few, paste them. If it's friction, skip.", type:"text", placeholder:"e.g.\nyo just pushed the fix\ncan we move standup to 11?\nlol fair point", optional:true },
+
+  // Phase 4 — Quick Preferences (4 A/B questions)
+  { id:9, phase:4, q:"Formality — gut reaction.", hint:"Which one would you rather have written?", type:"ab",
+    optionA:'"We\'ve identified a strategic opportunity to enhance cross-functional alignment and drive meaningful outcomes."',
+    optionB:'"We found something that could matter — if we get the right people in the room."' },
+  { id:10, phase:4, q:"Length & build — pick one.", hint:"Which feels more like the writing you'd want to do?", type:"ab",
+    optionA:'Short, punchy paragraphs. Three sentences max. Get out fast.',
+    optionB:'Layered paragraphs that build context, then land the point. Earn the conclusion.' },
+  { id:11, phase:4, q:"Confidence — pick one.", hint:"How do you typically state a take?", type:"ab",
+    optionA:'"I\'m pretty sure this is right, but happy to be wrong — what am I missing?"',
+    optionB:'"This is the right call. Here\'s why."' },
+  { id:12, phase:4, q:"Humor — pick one.", hint:"Where does humor live in your writing?", type:"ab",
+    optionA:'A dry, self-aware aside in parentheses (because you can\'t help yourself).',
+    optionB:'Straight-faced. No winking. The point is the point.' }
 ];
 const TOTAL = QUESTIONS.length;
 
@@ -533,7 +543,7 @@ function renderQuestion() {
     <div class="question">${q.q}</div>
     <div class="question-hint">${q.hint}</div>
     ${q.type === 'ab' ? renderAB(q) : `
-      <textarea id="answer-input" placeholder="${q.placeholder}" oninput="onTextInput(this)" rows="4">${existing}</textarea>
+      <textarea id="answer-input" placeholder="${q.placeholder}" oninput="onTextInput(this)" rows="${q.optional ? 5 : 4}">${existing}</textarea>
       <div class="voice-tip">🎙️ <strong>Prefer to speak?</strong> Use Mac Dictation (Fn Fn), Wispr Flow, or similar — then paste here. Or open on your phone and use the keyboard mic.</div>
     `}
     <div class="followup-bubble" id="followup-box">
@@ -541,7 +551,7 @@ function renderQuestion() {
       <textarea id="followup-input" placeholder="Anything to add?" rows="2" oninput="saveFollowUp(${q.id}, this.value)">${state.followUps[q.id] || ''}</textarea>
     </div>
     <div class="controls">
-      <span class="skip-link" onclick="skipQuestion()">Skip</span>
+      <span class="skip-link" onclick="skipQuestion()">${q.optional ? 'Skip — that\'s okay' : 'Skip'}</span>
       <button class="btn-next" id="btn-next" onclick="nextQuestion()" ${canGo ? '' : 'disabled'}>${isLast ? 'Finish →' : 'Next →'}</button>
     </div>`;
 
@@ -660,7 +670,20 @@ const SYNTHESIS_SYSTEM_PROMPT = `You are building a writing style guide that wil
 
 The audience is not human readers — it's the AI itself. Every section must give the LLM concrete, executable rules it can pattern-match on. Vague philosophy ("warm and conversational") is useless. Specific patterns ("opens with 'Honestly,' or 'Look —' about 40% of the time") are what work.
 
-You just conducted a 15-question interview with this person. Below is everything you need.
+You just conducted a 12-question interview with this person. Below is everything you need.
+
+# CRITICAL: HOW TO READ THE INTERVIEW
+
+The interview answers are TWO sources of data, not one:
+
+1. **What they say** (the content of their answers)
+2. **HOW they say it** (the style of their writing — sentence rhythm, word choice, punctuation, hedging patterns, openings, closings)
+
+Source #2 is often more valuable than Source #1. The way they typed their answers IS their lexical fingerprint. Mine it ruthlessly.
+
+Specifically, for each section below, derive evidence from BOTH sources:
+- For Tone, Rhythm, Punctuation, Lexical Fingerprint, Openings/Closings, Hedging → primarily mine HOW they wrote
+- For Identity, Goals, Audience, Format Rules, Anti-patterns → primarily mine WHAT they wrote
 
 # RULES OF OUTPUT
 
@@ -670,7 +693,7 @@ You just conducted a 15-question interview with this person. Below is everything
 4. NEVER write vague qualifiers like "appropriate," "natural," "thoughtful," "balanced." If you catch yourself writing one, replace it with a concrete rule, count, or example.
 5. Be honest about weaknesses. The person asked for it; an LLM needs to know what to avoid to sound like them.
 6. Every "do" should have a paired "don't" or "instead" wherever possible.
-7. If you don't have enough data for a section, write "INSUFFICIENT DATA — needs writing samples" rather than making things up.
+7. NEVER output "INSUFFICIENT DATA." Derive what you can from the style of their answers — their sentence rhythm, word choices, hedging patterns, and overall tone are themselves data. If a section has weak evidence, make a confident inference based on adjacent signals and mark it with a single italicized note: *(inferred from writing style; refine with samples)*. Never hallucinate facts about the person.
 
 ---
 
@@ -777,27 +800,159 @@ The single most important rule. Example: "If 'be concise' and 'sound warm' confl
 
 *This is a system prompt, not a wall poster. Paste it at the start of any AI conversation where you want output in [Name]'s voice. The AI should treat each rule above as an instruction, not a suggestion.*`;
 
-const ARTIFACT_SYSTEM_PROMPT = `You are a world-class writing coach and editor. You've just conducted a deep interview with someone about their communication style, taste, and goals.
+// ARTIFACT prompt — same rigor as V2, but asks for a beautiful visual artifact FIRST
+// (for Dia/Claude/Canvas-capable AIs), and the LLM system prompt SECOND.
+const ARTIFACT_SYSTEM_PROMPT = `You are building a Personal Writing Guide that will be delivered as TWO outputs in this order:
 
-Based on their answers, create a Personal Writing Guide as a beautiful, visually rich artifact — the kind of document someone would want to pin, share, or keep open while writing.
+OUTPUT 1 — A beautiful, visually rich artifact rendered using your interface's full formatting capabilities (Dia visual artifacts, Claude artifacts, ChatGPT canvas, etc.). This is what the person will pin, share, or keep open while writing.
 
-Use the full formatting capabilities of your interface: headers, pull quotes, callout blocks, bold highlights, dividers, color-coded sections — make it stunning. This is the version they'll show people.
+OUTPUT 2 — A plain markdown version that doubles as a SYSTEM PROMPT for LLMs (Claude, ChatGPT, Gemini, Rovo Chat) so any AI can write in this person's voice when given this guide.
 
-After the visual artifact, also include a plain markdown version with these sections for use as a system prompt:
+The same content powers both. The visual version is the artistry; the markdown version is the working tool. Both must be rigorous.
 
-# [Name]'s Personal Writing Guide
-## Voice in One Line
-## Tone
-## Rhythm & Structure
-## Vocabulary
-## What They're Optimizing For
-## Writing Contexts
-## Admire & Aspire
-## What to Avoid
-## Growth Edge
-## Example Rewrites
+You just conducted a 12-question interview with this person. Below is everything you need.
 
-Be specific. Be honest. Make this feel earned.`;
+# CRITICAL: HOW TO READ THE INTERVIEW
+
+The interview answers are TWO sources of data, not one:
+
+1. **What they say** (the content of their answers)
+2. **HOW they say it** (the style of their writing — sentence rhythm, word choice, punctuation, hedging patterns, openings, closings)
+
+Source #2 is often more valuable than Source #1. The way they typed their answers IS their lexical fingerprint. Mine it ruthlessly.
+
+For each section below, derive evidence from BOTH sources:
+- For Tone, Rhythm, Punctuation, Lexical Fingerprint, Openings/Closings, Hedging → primarily mine HOW they wrote
+- For Identity, Goals, Audience, Format Rules, Anti-patterns → primarily mine WHAT they wrote
+
+# RULES OF OUTPUT
+
+1. Produce OUTPUT 1 (visual artifact) first, then OUTPUT 2 (markdown system prompt). Both are required.
+2. Replace [Name] with their actual first name throughout both outputs.
+3. Use their own words and phrases as direct evidence wherever possible. Quote them.
+4. NEVER write vague qualifiers like "appropriate," "natural," "thoughtful," "balanced." Replace them with concrete rules, counts, or examples.
+5. Be honest about weaknesses. The person asked for it.
+6. Every "do" should have a paired "don't" or "instead" wherever possible.
+7. NEVER output "INSUFFICIENT DATA." Derive what you can from the style of their answers. If a section has weak evidence, make a confident inference and mark it with a single italicized note: *(inferred from writing style; refine with samples)*. Never hallucinate facts about the person.
+
+---
+
+# OUTPUT 1: THE VISUAL ARTIFACT
+
+Create a stunning, visually rich Personal Writing Guide using the full formatting power of your interface. Use:
+- Strong typographic hierarchy (large title, clear section headers, numbered sections)
+- Pull quotes from their actual interview answers
+- Callout blocks for key rules and the "Sound Check" checklist
+- Visual contrast for the Tone Dial (use 1-10 scales rendered as bars or dots if possible)
+- A clear "Voice Snapshot" hero section at the top
+- Color-coded distinctions (e.g., green tags for words to USE, red tags for words to AVOID)
+- Bold highlights for the most important rules
+- A separator or summary line ending with: **"When in doubt, sound like X."**
+
+Use the same 13-section structure as Output 2 below — but render it for a human reader who will pin or share this. Make it feel like a designed document, not a wall of text.
+
+---
+
+# OUTPUT 2: THE MARKDOWN SYSTEM PROMPT
+
+After the visual artifact, output the markdown version below verbatim (filled in for this person). This is what they'll paste into any AI as a system prompt.
+
+# [Name]'s Writing Style Guide
+*A system prompt for AI to write authentically in [Name]'s voice.*
+
+## 1. Voice Snapshot
+One paragraph (3-4 sentences) capturing them as a communicator. End with a single bolded line: **"When in doubt, sound like X."** where X is the most distinctive thing about how they write.
+
+## 2. Core Identity & Goals
+- **Who they are:** 1 line.
+- **Who they're usually writing for:** 1 line, as specific as possible.
+- **What success looks like:** What the reader should feel/do/believe after reading. 2-3 bullets.
+
+## 3. Tone Dial (Concrete)
+For each axis, give a position on a 1-10 scale AND a one-line rationale grounded in their interview answers.
+- Formality: __/10
+- Warmth: __/10
+- Confidence/Assertion: __/10
+- Humor: __/10
+- Earnestness vs. Irony: skew toward ___
+- Energy: __/10
+
+## 4. Rhythm & Sentence Architecture
+Be concrete and non-contradictory. Pick a primary mode and name it.
+- **Default sentence length:** (e.g., "12-22 words; mix short punches with longer connective sentences")
+- **Paragraph length:** (e.g., "2-4 sentences; avoid one-sentence paragraphs unless for emphasis")
+- **How they build to a point:** Front-load OR build-then-reveal — pick one based on evidence
+- **Lists vs. prose:** When to use bullets vs. running text
+- **Pacing technique:** One specific technique they use
+
+## 5. Lexical Fingerprint
+This is the most important section for an LLM. Be exhaustive.
+
+### Signature phrases (use these)
+List 8-15 words/phrases pulled directly from their interview that feel distinctively theirs. Quote them in context where possible.
+
+### Sentence-starters they use
+List 5-10 specific opening words/phrases.
+
+### Words to avoid (kills the voice)
+List 10-15 specific words/phrases that would make them sound like a generic AI or corporate template.
+
+### Patterns to never use
+- The "It's not just X — it's Y" parallel construction
+- Em-dash overuse for false drama
+- Add 2-3 more specific anti-patterns based on their interview
+
+## 6. Punctuation & Mechanics Signature
+- **Em-dashes:** how often, what for
+- **Ellipses:** yes/no, when
+- **Exclamation marks:** allowed? rare? never?
+- **Sentence fragments:** allowed? when?
+- **Capitalization quirks:** any?
+- **Emoji:** which ones, in which contexts, how often
+- **Parentheses:** for asides? avoid?
+- **Oxford comma:** yes/no
+
+## 7. Format-Specific Playbooks
+For each context they mentioned, give 4-6 concrete micro-rules.
+
+### Slack / chat
+### Long-form (docs, blogs, essays)
+### Stakeholder / leadership writing
+### Anything else they mentioned
+
+## 8. Hedging & Uncertainty
+How do they express "I don't know" / "I'm not sure" / "this might be wrong"? Give 3-5 specific phrasings. NEVER use AI hedges like "It's worth noting that..." or "It's important to consider..."
+
+## 9. Opening & Closing Moves
+- **Openings:** 3-4 ways they start pieces of writing (with examples)
+- **Closings:** 3-4 ways they end (with examples)
+- **Transitions between ideas:** Their connector words
+
+## 10. The "Sound Check" Test
+After drafting anything in their voice, the LLM should check:
+- [ ] Would [Name] actually say this out loud?
+- [ ] Did I avoid every word in §5's "Words to avoid" list?
+- [ ] Is the rhythm right — not too uniform, not too choppy?
+- [ ] Did I lead with the point, per §4?
+- [ ] Add 2-3 more checklist items specific to this person
+
+## 11. Worked Examples (3 minimum)
+Take 3 actual quotes from their interview. For each:
+- **Their raw words:** (verbatim quote)
+- **In their voice, polished:** (rewrite — same content, tighter, voice-aligned)
+- **Why it works:** (1 sentence)
+
+## 12. Edge Cases
+- When the topic doesn't fit their natural voice, what shifts? What stays?
+- When they're disagreeing — does tone change?
+- When celebrating / sharing good news — how does it land in writing?
+
+## 13. Meta: When Rules Conflict
+The single most important rule. Example: "If 'be concise' and 'sound warm' conflict, warmth wins for Slack; concision wins for stakeholder docs."
+
+---
+
+*Output 2 is a system prompt, not a wall poster. Paste it at the start of any AI conversation where you want output in [Name]'s voice. The AI should treat each rule above as an instruction, not a suggestion.*`;
 
 function buildTranscript() {
   const name = state.name || 'Anonymous';

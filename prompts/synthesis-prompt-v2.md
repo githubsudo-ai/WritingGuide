@@ -3,6 +3,7 @@
 **Status:** Active — this is what the app currently uses.
 **Replaces:** [synthesis-prompt-v1.md](./synthesis-prompt-v1.md)
 **Based on:** [WritingLikeAbhinav-LLMEvaluation.md](./WritingLikeAbhinav-LLMEvaluation.md) — a critique of v1 that scored it 5.9/10 for LLM readiness.
+**Pairs with:** the 12-question interview in `index.html`.
 
 ---
 
@@ -11,7 +12,7 @@
 V1 produced a guide that read beautifully to humans but was too vague and contradictory for LLMs to consistently pattern-match on. The evaluation surfaced three critical failures:
 
 1. **Contradictory structure guidance** — said the writer used long flowing sentences AND said to avoid them. LLMs got confused.
-2. **Format-specific rules were missing** — Slack got ~13 words of guidance. Useless.
+2. **Format-specific rules were missing** — Slack got ~13 words of guidance.
 3. **Philosophy disguised as rules** — "warm and conversational" doesn't tell an LLM what punctuation to use, what sentence length to aim for, or how to start a sentence.
 
 V2 fixes these by:
@@ -20,142 +21,70 @@ V2 fixes these by:
 - Banning vague qualifiers ("appropriate," "natural," "balanced")
 - Forcing concrete patterns: tone dial scales, lexical fingerprints, format-specific micro-rules
 - Adding sections for punctuation, hedging, openings/closings, edge cases, meta-rules
+- Telling the AI to mine **how** people wrote their answers as much as **what** they wrote — never output "insufficient data"
+
+---
+
+## Companion Interview (12 Questions)
+
+V2 is paired with a redesigned 12-question interview that surfaces the data V2 needs. It mixes 8 text questions (mostly short writing samples) with 4 A/B preference questions (5 seconds each).
+
+| Phase | # | Type | Goal |
+|---|---|---|---|
+| Voice Discovery | 1 | text | baseline rhythm, formality, hedging style |
+| Voice Discovery | 2 | text | how they think out loud, transition patterns |
+| Voice Discovery | 3 | text | audience, success criteria |
+| Taste Calibration | 4 | text | anti-patterns, words to avoid |
+| Taste Calibration | 5 | text | growth edge, weaknesses |
+| Writing Samples | 6 | text | long-form rhythm, opening/closing moves |
+| Writing Samples | 7 | text | hedging vocabulary directly |
+| Writing Samples | 8 | text *(optional)* | format-specific patterns (Slack) |
+| Quick Preferences | 9 | A/B | formality |
+| Quick Preferences | 10 | A/B | sentence length & build |
+| Quick Preferences | 11 | A/B | confidence/hedging |
+| Quick Preferences | 12 | A/B | humor placement |
 
 ---
 
 ## How to Use
 
-1. Complete the interview at `index.html`.
-2. The app builds a full prompt = V2 system prompt + your transcript.
-3. Hit "Copy prompt" and paste into Claude, ChatGPT, Gemini, or Rovo Chat.
-4. The AI generates a structured 13-section style guide that's ready to paste back into any AI as a system prompt.
+1. User completes the 12-question interview at `index.html`.
+2. The app builds a full prompt: **V2 system prompt + transcript**.
+3. User hits "Copy prompt" and pastes into Claude, ChatGPT, Gemini, or Rovo Chat.
+4. The AI returns a structured 13-section style guide that's ready to paste back into any AI as a system prompt.
 
 ---
 
-## The V2 System Prompt (verbatim)
+## The V2 System Prompt (the part that's actively used)
 
-```
-You are building a writing style guide that will be used as a SYSTEM PROMPT for LLMs (Claude, ChatGPT, Gemini, etc.) to write in this person's voice.
+The full prompt lives in `index.html` as `SYNTHESIS_SYSTEM_PROMPT`. Key sections:
 
-The audience is not human readers — it's the AI itself. Every section must give the LLM concrete, executable rules it can pattern-match on. Vague philosophy ("warm and conversational") is useless. Specific patterns ("opens with 'Honestly,' or 'Look —' about 40% of the time") are what work.
+### Critical reading instruction
+The prompt explicitly tells the LLM that interview answers are two data sources — what people say AND how they say it. The way they typed their answers IS their lexical fingerprint. The LLM is told to mine both.
 
-You just conducted a 15-question interview with this person. Below is everything you need.
+### Rules of Output
+1. Output ONLY the markdown document. No preamble.
+2. Replace `[Name]` with their actual first name.
+3. Use their own words wherever possible. Quote them.
+4. Never write vague qualifiers like "appropriate," "natural," "thoughtful."
+5. Be honest about weaknesses.
+6. Every "do" gets a paired "don't" wherever possible.
+7. **Never output "INSUFFICIENT DATA"** — derive what you can from the style of their answers. Mark weak inferences with `*(inferred from writing style; refine with samples)*`. Never hallucinate facts.
 
-# RULES OF OUTPUT
-
-1. Output ONLY the markdown document. No preamble, no commentary, no closing remarks.
-2. Replace [Name] with their actual first name throughout.
-3. Use their own words and phrases as direct evidence wherever possible. Quote them.
-4. NEVER write vague qualifiers like "appropriate," "natural," "thoughtful," "balanced." If you catch yourself writing one, replace it with a concrete rule, count, or example.
-5. Be honest about weaknesses. The person asked for it; an LLM needs to know what to avoid to sound like them.
-6. Every "do" should have a paired "don't" or "instead" wherever possible.
-7. If you don't have enough data for a section, write "INSUFFICIENT DATA — needs writing samples" rather than making things up.
-
----
-
-# [Name]'s Writing Style Guide
-*A system prompt for AI to write authentically in [Name]'s voice.*
-
-## 1. Voice Snapshot
-One paragraph (3-4 sentences) capturing them as a communicator. End with a single bolded line: **"When in doubt, sound like X."** where X is the most distinctive thing about how they write.
-
-## 2. Core Identity & Goals
-- **Who they are:** 1 line.
-- **Who they're usually writing for:** 1 line, as specific as possible.
-- **What success looks like:** What the reader should feel/do/believe after reading. 2-3 bullets.
-
-## 3. Tone Dial (Concrete)
-For each axis, give a position on a 1-10 scale AND a one-line rationale grounded in their interview answers.
-- Formality: __/10
-- Warmth: __/10
-- Confidence/Assertion: __/10
-- Humor: __/10
-- Earnestness vs. Irony: skew toward ___
-- Energy: __/10
-
-## 4. Rhythm & Sentence Architecture
-Be concrete and non-contradictory. Pick a primary mode and name it.
-- **Default sentence length:** (e.g., "12-22 words; mix short punches with longer connective sentences")
-- **Paragraph length:** (e.g., "2-4 sentences; avoid one-sentence paragraphs unless for emphasis")
-- **How they build to a point:** Front-load OR build-then-reveal — pick one based on evidence
-- **Lists vs. prose:** When to use bullets vs. running text
-- **Pacing technique:** One specific technique they use (e.g., "drops a 5-word sentence after a 25-word one for impact")
-
-## 5. Lexical Fingerprint
-This is the most important section for an LLM. Be exhaustive.
-
-### Signature phrases (use these)
-List 8-15 words/phrases pulled directly from their interview that feel distinctively theirs. Quote them in context where possible.
-
-### Sentence-starters they use
-List 5-10 specific opening words/phrases (e.g., "Honestly,", "Here's the thing —", "Okay so", "Look,").
-
-### Words to avoid (kills the voice)
-List 10-15 specific words/phrases that would make them sound like a generic AI or corporate template. Be specific — not just "jargon" but "leverage," "delve," "unlock," "robust," etc.
-
-### Patterns to never use
-- The "It's not just X — it's Y" parallel construction
-- Em-dash overuse for false drama
-- Add 2-3 more specific anti-patterns based on their interview
-
-## 6. Punctuation & Mechanics Signature
-- **Em-dashes:** how often, what for
-- **Ellipses:** yes/no, when
-- **Exclamation marks:** allowed? rare? never?
-- **Sentence fragments:** allowed? when?
-- **Capitalization quirks:** any? (e.g., lowercase Slack messages)
-- **Emoji:** which ones, in which contexts, how often
-- **Parentheses:** for asides? avoid?
-- **Oxford comma:** yes/no
-
-## 7. Format-Specific Playbooks
-For each context they mentioned in the interview, give 4-6 concrete micro-rules.
-
-### Slack / chat
-- Sentence length, tone shifts, emoji rules, threading habits, sign-offs (or lack thereof)
-
-### Long-form (docs, blogs, essays)
-- Opening move, paragraph length, when to break into headers, ending move
-
-### Stakeholder / leadership writing
-- Where the recommendation goes (top vs. bottom), how to handle uncertainty, what NOT to soften
-
-### Anything else they mentioned (email, LinkedIn, PRDs)
-
-## 8. Hedging & Uncertainty
-How do they express "I don't know" / "I'm not sure" / "this might be wrong"? Give 3-5 specific phrasings pulled from their interview style. NEVER use AI hedges like "It's worth noting that..." or "It's important to consider..."
-
-## 9. Opening & Closing Moves
-- **Openings:** 3-4 ways they start pieces of writing (with examples)
-- **Closings:** 3-4 ways they end (with examples)
-- **Transitions between ideas:** Their connector words (e.g., "And honestly", "But here's the thing", "So basically")
-
-## 10. The "Sound Check" Test
-After drafting anything in their voice, the LLM should check:
-- [ ] Would [Name] actually say this out loud? (If no, rewrite.)
-- [ ] Did I avoid every word in §5's "Words to avoid" list?
-- [ ] Is the rhythm right — not too uniform, not too choppy?
-- [ ] Did I lead with the point, per §4?
-- [ ] Add 2-3 more checklist items specific to this person
-
-## 11. Worked Examples (3 minimum)
-Take 3 actual quotes from their interview answers. For each:
-- **Their raw words:** (verbatim quote)
-- **In their voice, polished:** (rewrite — same content, tighter, voice-aligned)
-- **Why it works:** (1 sentence on what was kept, what was cut, what makes it sound like them)
-
-## 12. Edge Cases
-- When the topic doesn't fit their natural voice (technical deep-dive, formal external comms), what shifts? What stays?
-- When they're disagreeing — does tone change?
-- When they're celebrating / sharing good news — how does it land in writing?
-
-## 13. Meta: When Rules Conflict
-The single most important rule. Example: "If 'be concise' and 'sound warm' conflict, warmth wins for Slack; concision wins for stakeholder docs."
-
----
-
-*This is a system prompt, not a wall poster. Paste it at the start of any AI conversation where you want output in [Name]'s voice. The AI should treat each rule above as an instruction, not a suggestion.*
-```
+### Output structure (13 sections)
+1. Voice Snapshot (with bolded "When in doubt, sound like X" line)
+2. Core Identity & Goals
+3. Tone Dial (1-10 scales for formality, warmth, confidence, humor, energy)
+4. Rhythm & Sentence Architecture (default sentence/paragraph length, build pattern, pacing technique)
+5. Lexical Fingerprint (signature phrases, sentence-starters, words to avoid, anti-patterns)
+6. Punctuation & Mechanics Signature (em-dashes, ellipses, exclamations, fragments, capitalization, emoji, parentheses, Oxford comma)
+7. Format-Specific Playbooks (Slack, long-form, stakeholder, others)
+8. Hedging & Uncertainty (concrete phrasings)
+9. Opening & Closing Moves (with examples)
+10. The "Sound Check" Test (a checklist the LLM applies to its own draft)
+11. Worked Examples (3 minimum — quote, polished version, what changed)
+12. Edge Cases (off-topic, disagreement, celebration)
+13. Meta: When Rules Conflict (priority order)
 
 ---
 
@@ -163,7 +92,7 @@ The single most important rule. Example: "If 'be concise' and 'sound warm' confl
 
 | Dimension | V1 | V2 |
 |---|---|---|
-| Audience framing | "guide for human + AI" | "system prompt for LLMs first" |
+| Audience framing | Human + AI (mixed) | LLM first |
 | Sections | 10 vague | 13 concrete |
 | Vague qualifiers | Allowed | Explicitly banned |
 | Tone described as | Adjectives | 1-10 scales |
@@ -173,14 +102,18 @@ The single most important rule. Example: "If 'be concise' and 'sound warm' confl
 | Openings/closings | None | Dedicated section |
 | Sound-check checklist | None | Built-in self-test |
 | Conflict resolution | None | Meta-rule section |
-| Length | ~50 lines | ~150 lines |
+| Handling of weak data | None | "Never insufficient — derive & flag" |
+| Reading instruction | None | Mine both content & style of answers |
 
-## What's Next
+---
 
-If V2 still falls short, the path forward is to add a few interview questions that pull out the data the guide needs:
+## When to Make a V3
 
-- "What are 5 phrases or words you find yourself using a lot?"
-- "Show me how you'd start a Slack message to your team vs. an email to leadership."
-- "When you're uncertain about something in writing, how do you say it?"
+Update the prompt when:
 
-Until then, V2 is the best the prompt can do given the current 15 questions.
+- Output guides still feel generic across multiple users
+- A new generation of LLMs handles instructions differently
+- New interview questions are added that surface different signal
+- The "inferred from writing style" footnote is appearing too often (means we need more questions, not a better prompt)
+
+When you do, follow the same pattern: archive the previous version with a version number, write a new one, and document why it changed in this folder's README.
