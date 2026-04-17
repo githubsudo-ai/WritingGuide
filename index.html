@@ -6,97 +6,247 @@
   <title>Writing Voice Interview</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    @keyframes grain {
+      0%,100% { transform: translate(0,0); }
+      10% { transform: translate(-2%,-3%); }
+      30% { transform: translate(3%,2%); }
+      50% { transform: translate(-1%,4%); }
+      70% { transform: translate(4%,-1%); }
+      90% { transform: translate(-3%,1%); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes blink {
+      0%,49% { opacity: 1; }
+      50%,100% { opacity: 0; }
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.4); }
+      70% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+    @keyframes activePulse {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes ripple {
+      from { transform: scale(0); opacity: 0.3; }
+      to   { transform: scale(4); opacity: 0; }
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #0f0f0f; color: #f0f0f0;
+      background: #0a0a0a; color: #f0f0f0;
       min-height: 100vh; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; padding: 24px;
+      align-items: center; justify-content: center; padding: 32px;
+      overflow-x: hidden;
     }
-    .container { width: 100%; max-width: 700px; }
 
-    /* Progress */
-    .progress-wrap { margin-bottom: 40px; }
-    .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: #555; margin-bottom: 8px; letter-spacing: 0.06em; text-transform: uppercase; }
-    .progress-bar { height: 2px; background: #1e1e1e; border-radius: 2px; overflow: hidden; }
-    .progress-fill { height: 100%; background: #fff; border-radius: 2px; transition: width 0.5s ease; }
+    /* Subtle animated grain overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: -50%;
+      width: 200%; height: 200%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      animation: grain 8s steps(2) infinite;
+      pointer-events: none; z-index: 0;
+    }
 
-    /* Question */
-    .question { font-size: 26px; font-weight: 500; line-height: 1.4; color: #f0f0f0; margin-bottom: 8px; }
-    .question-hint { font-size: 14px; color: #555; margin-bottom: 28px; font-style: italic; }
+    .container {
+      width: 100%; max-width: 640px;
+      position: relative; z-index: 1;
+    }
 
-    /* Inputs */
-    textarea, input[type="text"] {
+    /* ── Intro ─────────────────────────────────────────── */
+    .intro {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center;
+    }
+    .intro-eyebrow {
+      font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: #333; margin-bottom: 36px;
+      animation: fadeIn 1.2s ease both;
+    }
+    .intro h1 {
+      font-size: clamp(36px, 7vw, 56px); font-weight: 600;
+      letter-spacing: -0.04em; line-height: 1.1;
+      color: #f8f8f8; margin-bottom: 20px;
+      animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s both;
+    }
+    .intro-sub {
+      font-size: 17px; color: #b0b0b0; line-height: 1.7;
+      max-width: 420px; margin-bottom: 52px;
+      animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.25s both;
+    }
+    .intro-sub em { color: #d8d8d8; font-style: normal; }
+    .name-block {
+      width: 100%; max-width: 320px;
+      animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.4s both;
+    }
+    .name-label {
+      font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #333; display: block; margin-bottom: 12px; text-align: left;
+    }
+    .name-input {
       width: 100%; background: transparent; border: none;
       border-bottom: 1px solid #2a2a2a; color: #f0f0f0;
-      font-size: 17px; line-height: 1.65; padding: 12px 0;
-      resize: none; outline: none; font-family: inherit;
-      transition: border-color 0.2s ease;
+      font-size: 22px; font-weight: 400; letter-spacing: -0.01em;
+      padding: 8px 0 12px; outline: none; font-family: inherit;
+      transition: border-color 0.3s ease; caret-color: #fff;
     }
-    textarea { min-height: 100px; }
-    textarea::placeholder, input::placeholder { color: #3a3a3a; }
-    textarea:focus, input:focus { border-color: #555; }
+    .name-input::placeholder { color: #2a2a2a; }
+    .name-input:focus { border-color: #555; }
+    /* Blinking cursor decoration on intro */
+    .cursor-blink {
+      display: inline-block; width: 2px; height: 1.1em;
+      background: #f0f0f0; margin-left: 3px; vertical-align: middle;
+      animation: blink 1s steps(2) infinite;
+      border-radius: 1px;
+    }
+    .btn-start {
+      margin-top: 40px; background: #f0f0f0; color: #0a0a0a;
+      border: none; border-radius: 100px;
+      padding: 16px 48px; font-size: 16px; font-weight: 600;
+      cursor: pointer; letter-spacing: -0.01em;
+      transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+      animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.55s both;
+      box-shadow: 0 8px 0 rgba(255,255,255,0.06);
+    }
+    .btn-start:hover:not(:disabled) {
+      background: #fff;
+      box-shadow: 0 4px 0 rgba(255,255,255,0.06), 0 0 40px rgba(255,255,255,0.1);
+      transform: translateY(3px);
+    }
+    .btn-start:active:not(:disabled) {
+      transform: translateY(6px);
+      box-shadow: 0 0 0 rgba(255,255,255,0.06);
+    }
+    .btn-start:disabled { background: #161616; color: #2a2a2a; cursor: not-allowed; box-shadow: none; transform: none; }
+
+    /* ── Question page ─────────────────────────────────── */
+    .q-phase {
+      font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: #2a2a2a; margin-bottom: 48px;
+      animation: fadeIn 0.6s ease both;
+    }
+    .q-phase .phase-current { color: #444; }
+
+    .question {
+      font-size: clamp(22px, 4vw, 30px); font-weight: 500;
+      line-height: 1.35; color: #ebebeb; margin-bottom: 10px;
+      letter-spacing: -0.02em;
+      animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.05s both;
+    }
+    .question-hint {
+      font-size: 14px; color: #6a6a6a; margin-bottom: 36px;
+      line-height: 1.6; font-style: italic;
+      animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.15s both;
+    }
+
+    /* Inputs */
+    textarea {
+      width: 100%; background: transparent; border: none;
+      border-bottom: 1px solid #1e1e1e; color: #d8d8d8;
+      font-size: 17px; line-height: 1.75; padding: 12px 0 16px;
+      resize: none; outline: none; font-family: inherit;
+      transition: border-color 0.3s ease; caret-color: #fff;
+      animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.2s both;
+      min-height: 90px;
+    }
+    textarea::placeholder { color: #282828; }
+    textarea:focus { border-color: #383838; }
+    input[type="text"] {
+      background: transparent; border: none; color: #f0f0f0;
+      font-family: inherit; outline: none;
+    }
 
     /* Voice tip */
     .voice-tip {
-      margin-top: 14px; font-size: 13px; color: #444; line-height: 1.6;
+      margin-top: 16px; font-size: 13px; color: #6a6a6a; line-height: 1.6;
+      animation: fadeIn 0.7s ease 0.35s both;
+      border-left: 2px solid #2a2a2a; padding-left: 12px;
     }
-    .voice-tip strong { color: #555; font-weight: 500; }
+    .voice-tip strong { color: #8a8a8a; font-weight: 500; }
 
     /* A/B options */
-    .ab-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-    .ab-option {
-      background: #141414; border: 1px solid #222; border-radius: 12px;
-      padding: 20px; cursor: pointer; transition: all 0.2s ease;
-      font-size: 15px; line-height: 1.55; color: #bbb;
+    .ab-options {
+      display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px;
+      animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.2s both;
     }
-    .ab-option:hover { border-color: #444; color: #eee; }
-    .ab-option.selected { border-color: #fff; color: #fff; background: #1c1c1c; }
-    .ab-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin-bottom: 8px; }
+    .ab-option {
+      background: #0e0e0e; border: 1px solid #1e1e1e; border-radius: 14px;
+      padding: 20px 22px; cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+      font-size: 15px; line-height: 1.6; color: #8a8a8a;
+    }
+    .ab-option:hover { border-color: #383838; color: #c8c8c8; background: #121212; }
+    .ab-option.selected { border-color: #555; color: #f0f0f0; background: #161616; }
+    .ab-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: #3a3a3a; margin-bottom: 10px; }
 
     /* Controls */
-    .controls { display: flex; align-items: center; justify-content: space-between; margin-top: 32px; }
-    .skip-link { font-size: 13px; color: #444; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+    .controls {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 40px;
+      animation: fadeIn 0.7s ease 0.3s both;
+    }
+    .skip-link {
+      font-size: 13px; color: #404040; cursor: pointer;
+      text-underline-offset: 3px; transition: color 0.2s;
+    }
     .skip-link:hover { color: #888; }
     .btn-next {
-      background: #fff; color: #000; border: none; border-radius: 8px;
-      padding: 12px 28px; font-size: 15px; font-weight: 600; cursor: pointer;
-      transition: all 0.2s ease; letter-spacing: -0.01em;
+      background: #f0f0f0; color: #0a0a0a; border: none; border-radius: 100px;
+      padding: 13px 32px; font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16,1,0.3,1); letter-spacing: -0.01em;
+      box-shadow: 0 6px 0 rgba(255,255,255,0.05);
     }
-    .btn-next:hover { background: #ddd; }
-    .btn-next:disabled { background: #1e1e1e; color: #444; cursor: not-allowed; }
+    .btn-next:hover:not(:disabled) { background: #fff; transform: translateY(3px); box-shadow: 0 3px 0 rgba(255,255,255,0.05), 0 0 30px rgba(255,255,255,0.08); }
+    .btn-next:active:not(:disabled) { transform: translateY(5px); box-shadow: none; }
+    .btn-next:disabled { background: #141414; color: #2a2a2a; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* Dots progress */
+    .dots-row {
+      display: flex; gap: 5px; align-items: center; margin-bottom: 52px;
+      animation: fadeIn 0.8s ease both;
+    }
+    .dot {
+      width: 4px; height: 4px; border-radius: 50%;
+      background: #1e1e1e; transition: background 0.4s ease, width 0.4s cubic-bezier(0.16,1,0.3,1);
+    }
+    .dot.done { background: #505050; animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .dot.active { background: #aaa; width: 18px; border-radius: 4px; animation: activePulse 1.8s ease-in-out infinite; }
 
     /* Follow-up bubble */
     .followup-bubble {
-      margin-top: 24px; background: #141414; border: 1px solid #222;
-      border-radius: 12px; padding: 16px 20px; font-size: 15px; color: #aaa;
-      line-height: 1.5; display: none;
+      margin-top: 28px; border-top: 1px solid #161616;
+      padding-top: 20px; display: none;
     }
-    .followup-bubble .followup-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin-bottom: 6px; }
-    .followup-bubble textarea { margin-top: 10px; font-size: 15px; min-height: 60px; border-bottom-color: #2a2a2a; }
-
-    /* Intro */
-    .intro { text-align: center; }
-    .intro h1 { font-size: 40px; font-weight: 600; margin-bottom: 20px; letter-spacing: -0.03em; }
-    .intro p { font-size: 17px; color: #888; line-height: 1.65; margin-bottom: 12px; max-width: 500px; margin-left: auto; margin-right: auto; }
-    .intro .meta { font-size: 13px; color: #555; margin-bottom: 32px; }
-    .name-wrap { margin: 28px auto 36px; max-width: 340px; text-align: left; }
-    .name-wrap label { font-size: 12px; color: #555; text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 8px; }
-    .btn-start {
-      background: #fff; color: #000; border: none; border-radius: 10px;
-      padding: 16px 44px; font-size: 17px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
-    }
-    .btn-start:hover { background: #e0e0e0; }
-    .btn-start:disabled { background: #1e1e1e; color: #444; cursor: not-allowed; }
+    .followup-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: #4a4a4a; margin-bottom: 10px; }
+    .followup-bubble textarea { margin-top: 0; font-size: 15px; min-height: 56px; animation: none; }
 
     /* Final prompt screen */
     .final-screen {}
-    .final-screen h1 { font-size: 32px; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.02em; }
-    .final-screen .subtitle { font-size: 16px; color: #666; margin-bottom: 36px; line-height: 1.5; }
+    .final-screen h1 { font-size: 32px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.02em; animation: slideDown 0.6s cubic-bezier(0.16,1,0.3,1) 0.05s both; }
+    .final-screen .subtitle { font-size: 16px; color: #909090; margin-bottom: 36px; line-height: 1.5; animation: fadeUp 0.6s ease 0.2s both; }
 
     /* Hero copy block */
     .prompt-hero {
       background: #141414; border: 1px solid #2a2a2a; border-radius: 16px;
       overflow: hidden; margin-bottom: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      animation: fadeUp 0.6s ease 0.3s both;
     }
     .prompt-preview {
       padding: 20px 24px; font-size: 14px; line-height: 1.75; color: #777;
@@ -131,17 +281,62 @@
 
     .final-divider { border: none; border-top: 1px solid #1a1a1a; margin: 28px 0; }
 
-    .how-to { font-size: 14px; color: #555; line-height: 1.9; }
-    .how-to strong { color: #888; font-weight: 500; }
+    .how-to { font-size: 14px; color: #787878; line-height: 1.9; animation: fadeIn 0.6s ease 0.5s both; }
+    .how-to strong { color: #a0a0a0; font-weight: 500; }
     .how-to ol { padding-left: 18px; }
     .how-to ol li { margin-bottom: 4px; }
 
-    .btn-restart {
-      display: inline-block; margin-top: 20px; font-size: 13px; color: #333;
-      cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
-      transition: color 0.2s;
+    .btn-copy-hero {
+      position: relative; overflow: hidden;
     }
-    .btn-restart:hover { color: #777; }
+    .btn-copy-hero:active { transform: scale(0.98); }
+
+    /* AI launcher buttons */
+    .ai-launchers {
+      display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;
+      animation: fadeUp 0.6s ease 0.45s both;
+    }
+    .ai-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: #111; border: 1px solid #222; border-radius: 10px;
+      padding: 10px 16px; cursor: pointer; text-decoration: none;
+      font-size: 13px; font-weight: 500; color: #888;
+      transition: all 0.2s ease; flex: 1; min-width: 120px;
+      justify-content: center; white-space: nowrap;
+    }
+    .ai-btn:hover { border-color: #444; color: #e0e0e0; background: #181818; transform: translateY(-1px); }
+    .ai-btn img { width: 18px; height: 18px; flex-shrink: 0; object-fit: contain; display: block; }
+
+    /* Artifact section */
+    .artifact-section {
+      margin-top: 32px; border: 1px solid #1e1e1e; border-radius: 14px;
+      padding: 22px 24px; animation: fadeIn 0.6s ease 0.7s both;
+    }
+    .artifact-eyebrow {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em;
+      color: #3a3a3a; margin-bottom: 8px;
+    }
+    .artifact-heading {
+      font-size: 15px; font-weight: 500; color: #888; margin-bottom: 6px;
+    }
+    .artifact-sub {
+      font-size: 13px; color: #484848; line-height: 1.6; margin-bottom: 16px;
+    }
+    .btn-artifact {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent; border: 1px solid #2a2a2a; border-radius: 8px;
+      padding: 10px 18px; font-size: 13px; font-weight: 500; color: #666;
+      cursor: pointer; text-decoration: none; transition: all 0.2s ease;
+    }
+    .btn-artifact:hover { border-color: #555; color: #ccc; background: #141414; }
+    .btn-artifact img { width: 15px; height: 15px; object-fit: contain; }
+
+    .btn-restart {
+      display: inline-block; margin-top: 20px; font-size: 13px; color: #444;
+      cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+      transition: color 0.2s; animation: fadeIn 0.6s ease 0.6s both;
+    }
+    .btn-restart:hover { color: #888; }
 
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -195,41 +390,44 @@ function render() {
 function renderIntro() {
   app.innerHTML = `
     <div class="intro">
-      <h1>Find your voice.</h1>
-      <p>A 15-minute interview that helps AI understand how you think and communicate.</p>
-      <p>At the end, you'll get a <strong>ready-to-paste prompt</strong> you can drop into Claude, ChatGPT, Gemini — any AI. It'll generate your Personal Writing Guide.</p>
-      <p class="meta">15 questions &nbsp;·&nbsp; ~15 minutes &nbsp;·&nbsp; No backend required</p>
-      <div class="name-wrap">
-        <label for="name-input">Your first name</label>
-        <input type="text" id="name-input" placeholder="e.g. Abhinav" oninput="onNameInput(this)" autocomplete="given-name" />
+      <div class="intro-eyebrow">Personal Writing Guide</div>
+      <h1>Teach AI to write<br>exactly like you.<span class="cursor-blink"></span></h1>
+      <p class="intro-sub">15 honest questions about how you think and communicate. At the end, you get a prompt to paste into <em>Claude, ChatGPT, or Gemini</em> — it'll write in your voice.</p>
+      <div class="name-block">
+        <label class="name-label" for="name-input">Your first name</label>
+        <input class="name-input" type="text" id="name-input" placeholder="e.g. Abhinav" oninput="onNameInput(this)" autocomplete="given-name" />
+        <button class="btn-start" id="btn-start" onclick="startInterview()" disabled>Begin →</button>
       </div>
-      <button class="btn-start" id="btn-start" onclick="startInterview()" disabled>Let's go →</button>
     </div>`;
-  setTimeout(() => document.getElementById('name-input').focus(), 80);
+  setTimeout(() => document.getElementById('name-input').focus(), 120);
 }
 
 function renderQuestion() {
   const q = QUESTIONS[state.current];
   const isLast = state.current === TOTAL - 1;
-  const pct = (state.current / TOTAL) * 100;
   const existing = state.answers[q.id] || '';
   const canGo = canProceed(q, existing, state.abChoice);
 
+  // Build dots
+  const dots = QUESTIONS.map((_, i) => {
+    let cls = 'dot';
+    if (i < state.current) cls += ' done';
+    else if (i === state.current) cls += ' active';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
   app.innerHTML = `
-    <div class="progress-wrap">
-      <div class="progress-label"><span>${PHASES[q.phase]}</span><span>${state.current + 1} / ${TOTAL}</span></div>
-      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-    </div>
+    <div class="dots-row">${dots}</div>
+    <div class="q-phase"><span class="phase-current">${PHASES[q.phase]}</span></div>
     <div class="question">${q.q}</div>
     <div class="question-hint">${q.hint}</div>
     ${q.type === 'ab' ? renderAB(q) : `
       <textarea id="answer-input" placeholder="${q.placeholder}" oninput="onTextInput(this)" rows="4">${existing}</textarea>
-      <div class="voice-tip">🎙️ <strong>Prefer to speak?</strong> Use Mac Dictation (press Fn Fn), Wispr Flow, or any speech-to-text tool — then paste here. Or open this page on your phone and use the mic on your keyboard.</div>
+      <div class="voice-tip">🎙️ <strong>Prefer to speak?</strong> Use Mac Dictation (Fn Fn), Wispr Flow, or similar — then paste here. Or open on your phone and use the keyboard mic.</div>
     `}
     <div class="followup-bubble" id="followup-box">
-      <div class="followup-label">🤔 Follow-up</div>
-      <div class="followup-q" style="color:#ccc;font-size:15px;"></div>
-      <textarea id="followup-input" placeholder="Go deeper..." rows="2" oninput="saveFollowUp(${q.id}, this.value)">${state.followUps[q.id] || ''}</textarea>
+      <div class="followup-label">Go deeper</div>
+      <textarea id="followup-input" placeholder="Anything to add?" rows="2" oninput="saveFollowUp(${q.id}, this.value)">${state.followUps[q.id] || ''}</textarea>
     </div>
     <div class="controls">
       <span class="skip-link" onclick="skipQuestion()">Skip</span>
@@ -239,7 +437,7 @@ function renderQuestion() {
   const ta = document.getElementById('answer-input');
   if (ta) setTimeout(() => ta.focus(), 80);
 
-  if (state.followUps[q.id] !== undefined && state.followUps[q.id] !== null) {
+  if (state.followUps[q.id]) {
     const box = document.getElementById('followup-box');
     if (box) box.style.display = 'block';
   }
@@ -273,21 +471,45 @@ function renderFinal() {
         <div class="prompt-expand" id="prompt-expand" onclick="togglePromptExpand()">Show full prompt ↓</div>
       </div>
 
-      <button class="btn-copy-hero" onclick="copyPrompt()">
+      <button class="btn-copy-hero" onclick="copyAndOpen(null)">
         <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg>
         Copy prompt
       </button>
-      <div class="copy-confirm" id="copy-confirm">✓ Copied — paste it into Claude, ChatGPT, Gemini, or any AI</div>
+      <div class="ai-launchers">
+        <a class="ai-btn" href="#" onclick="copyAndOpen('https://chat.openai.com/'); return false;">
+          <img src="icons/ChatGPT-Logo.svg.png" alt="ChatGPT" />
+          ChatGPT
+        </a>
+        <a class="ai-btn" href="#" onclick="copyAndOpen('https://claude.ai/new'); return false;">
+          <img src="icons/Claude_AI_symbol.svg" alt="Claude" />
+          Claude
+        </a>
+        <a class="ai-btn" href="#" onclick="copyAndOpen('https://gemini.google.com/app'); return false;">
+          <img src="icons/gemini.webp" alt="Gemini" />
+          Gemini
+        </a>
+        <a class="ai-btn" href="#" onclick="copyAndOpen('https://chat.rovo.com/'); return false;">
+          <img src="icons/atlassian-rovo-icon.webp" alt="Rovo" />
+          Rovo Chat
+        </a>
+      </div>
+      <div class="copy-confirm" id="copy-confirm">✓ Copied — now paste it in the tab that just opened</div>
 
       <hr class="final-divider" />
 
       <div class="how-to">
-        <strong>What happens when you paste it:</strong>
-        <ol>
-          <li>The AI reads your answers and builds a profile of your voice.</li>
-          <li>It produces a <strong>formatted Writing Guide</strong> — visual, shareable, pinnable.</li>
-          <li>It also produces a <strong>plain markdown version</strong> you can save and reuse as a system prompt.</li>
-        </ol>
+        <strong>What you'll get:</strong> A clean markdown Writing Guide you can save and paste at the start of any AI conversation to make it write in your voice.
+      </div>
+
+      <div class="artifact-section">
+        <div class="artifact-eyebrow">✦ Bonus — using Dia?</div>
+        <div class="artifact-heading">Get a beautiful visual artifact instead</div>
+        <div class="artifact-sub">Dia (and Claude) can render stunning visual documents. Use this alternate prompt to get a beautifully formatted artifact <em>plus</em> the markdown version.</div>
+        <a class="btn-artifact" href="#" onclick="copyArtifactPrompt(); return false;">
+          <img src="icons/dia-icon.png" alt="Dia" />
+          Copy artifact prompt
+        </a>
+        <div class="copy-confirm" id="copy-confirm-artifact" style="margin-top:10px;">✓ Copied — paste into Dia (or Claude) for a beautiful artifact</div>
       </div>
 
       <span class="btn-restart" onclick="restart()">Start over</span>
@@ -297,23 +519,14 @@ function renderFinal() {
 // ── Prompt builder ────────────────────────────────────────────────────────────
 const SYNTHESIS_SYSTEM_PROMPT = `You are a world-class writing coach and editor. You've just conducted a deep interview with someone about their communication style, taste, and goals.
 
-Based on their answers, create a Personal Writing Guide — a concise, specific, highly personalized reference document they (or any AI) can use to write authentically in their voice.
+Based on their answers, produce a Personal Writing Guide in clean markdown — a concise, specific, highly personalized reference document they (or any AI) can use to write authentically in their voice.
 
 The guide must feel like it was written *specifically* for this person — not generic advice. Use their own words and phrases wherever possible. Be honest, including about weaknesses.
 
-Please produce TWO artifacts:
+Output only the markdown document below. No preamble, no commentary.
 
 ---
 
-## ARTIFACT 1: Formatted Writing Guide
-Produce a beautifully formatted, visually rich version of the guide (use headers, callout boxes, bold highlights, pull quotes from their interview — whatever formatting your interface supports). This is the one they'll show people or pin somewhere.
-
----
-
-## ARTIFACT 2: Markdown Style Guide
-Produce a plain markdown version with these exact sections — clean and copy-pasteable, for use as a system prompt or reference doc:
-
-\`\`\`markdown
 # [Name]'s Personal Writing Guide
 
 ## Voice in One Line
@@ -348,7 +561,29 @@ Take 1-2 short phrases or sentences from their actual interview answers and show
 - **Their words:** (quote)
 - **Polished version:** (rewrite in their voice)
 - **What changed:** (one line explanation)
-\`\`\`
+
+---
+*Save this as your writing system prompt. Paste it at the start of any AI conversation where you want it to write in your voice.*`;
+
+const ARTIFACT_SYSTEM_PROMPT = `You are a world-class writing coach and editor. You've just conducted a deep interview with someone about their communication style, taste, and goals.
+
+Based on their answers, create a Personal Writing Guide as a beautiful, visually rich artifact — the kind of document someone would want to pin, share, or keep open while writing.
+
+Use the full formatting capabilities of your interface: headers, pull quotes, callout blocks, bold highlights, dividers, color-coded sections — make it stunning. This is the version they'll show people.
+
+After the visual artifact, also include a plain markdown version with these sections for use as a system prompt:
+
+# [Name]'s Personal Writing Guide
+## Voice in One Line
+## Tone
+## Rhythm & Structure
+## Vocabulary
+## What They're Optimizing For
+## Writing Contexts
+## Admire & Aspire
+## What to Avoid
+## Growth Edge
+## Example Rewrites
 
 Be specific. Be honest. Make this feel earned.`;
 
@@ -368,6 +603,10 @@ function buildTranscript() {
 
 function buildFullPrompt(transcript) {
   return SYNTHESIS_SYSTEM_PROMPT + '\n\n---\n\nHere are the interview answers:\n\n' + transcript;
+}
+
+function buildArtifactPrompt(transcript) {
+  return ARTIFACT_SYSTEM_PROMPT + '\n\n---\n\nHere are the interview answers:\n\n' + transcript;
 }
 
 // ── Event handlers ────────────────────────────────────────────────────────────
@@ -474,14 +713,31 @@ function togglePromptExpand() {
   btn.textContent = expanded ? 'Show less ↑' : 'Show full prompt ↓';
 }
 
-function copyPrompt() {
+function copyArtifactPrompt() {
+  const transcript = buildTranscript();
+  const prompt = buildArtifactPrompt(transcript);
+  navigator.clipboard.writeText(prompt).then(() => {
+    const el = document.getElementById('copy-confirm-artifact');
+    if (el) {
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 3000);
+    }
+  });
+}
+
+function copyAndOpen(url) {
   const transcript = buildTranscript();
   const fullPrompt = buildFullPrompt(transcript);
   navigator.clipboard.writeText(fullPrompt).then(() => {
     const el = document.getElementById('copy-confirm');
-    if (!el) return;
-    el.style.display = 'block';
-    setTimeout(() => { el.style.display = 'none'; }, 3000);
+    if (el) {
+      el.textContent = url
+        ? '✓ Copied — paste it in the tab that just opened'
+        : '✓ Copied — paste it into Claude, ChatGPT, Gemini, or Rovo Chat';
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 3000);
+    }
+    if (url) window.open(url, '_blank');
   });
 }
 

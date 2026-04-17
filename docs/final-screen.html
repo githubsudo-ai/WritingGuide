@@ -60,12 +60,44 @@
     .how-to ol { padding-left: 18px; }
     .how-to ol li { margin-bottom: 4px; }
 
+    /* AI launchers */
+    .ai-launchers {
+      display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;
+    }
+    .ai-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: #111; border: 1px solid #222; border-radius: 10px;
+      padding: 10px 16px; cursor: pointer; text-decoration: none;
+      font-size: 13px; font-weight: 500; color: #888;
+      transition: all 0.2s ease; flex: 1; min-width: 120px;
+      justify-content: center; white-space: nowrap;
+    }
+    .ai-btn:hover { border-color: #444; color: #e0e0e0; background: #181818; transform: translateY(-1px); }
+    .ai-btn img { width: 18px; height: 18px; flex-shrink: 0; object-fit: contain; display: block; }
+
+    /* Artifact section */
+    .artifact-section {
+      margin-top: 32px; border: 1px solid #1e1e1e; border-radius: 14px;
+      padding: 22px 24px;
+    }
+    .artifact-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: #3a3a3a; margin-bottom: 8px; }
+    .artifact-heading { font-size: 15px; font-weight: 500; color: #888; margin-bottom: 6px; }
+    .artifact-sub { font-size: 13px; color: #484848; line-height: 1.6; margin-bottom: 16px; }
+    .btn-artifact {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent; border: 1px solid #2a2a2a; border-radius: 8px;
+      padding: 10px 18px; font-size: 13px; font-weight: 500; color: #666;
+      cursor: pointer; text-decoration: none; transition: all 0.2s ease;
+    }
+    .btn-artifact:hover { border-color: #555; color: #ccc; background: #141414; }
+    .btn-artifact img { width: 15px; height: 15px; object-fit: contain; }
+
     .btn-restart {
-      display: inline-block; margin-top: 20px; font-size: 13px; color: #333;
+      display: inline-block; margin-top: 20px; font-size: 13px; color: #444;
       cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
       transition: color 0.2s;
     }
-    .btn-restart:hover { color: #777; }
+    .btn-restart:hover { color: #888; }
 
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -92,21 +124,45 @@
       <div class="prompt-expand" id="prompt-expand" onclick="togglePromptExpand()">Show full prompt ↓</div>
     </div>
 
-    <button class="btn-copy-hero" onclick="copyPrompt()">
+    <button class="btn-copy-hero" onclick="copyAndOpen(null)">
       <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg>
       Copy prompt
     </button>
-    <div class="copy-confirm" id="copy-confirm">✓ Copied — paste it into Claude, ChatGPT, Gemini, or any AI</div>
+    <div class="ai-launchers">
+      <a class="ai-btn" href="#" onclick="copyAndOpen('https://chat.openai.com/'); return false;">
+        <img src="../icons/ChatGPT-Logo.svg.png" alt="ChatGPT" />
+        ChatGPT
+      </a>
+      <a class="ai-btn" href="#" onclick="copyAndOpen('https://claude.ai/new'); return false;">
+        <img src="../icons/Claude_AI_symbol.svg" alt="Claude" />
+        Claude
+      </a>
+      <a class="ai-btn" href="#" onclick="copyAndOpen('https://gemini.google.com/app'); return false;">
+        <img src="../icons/gemini.webp" alt="Gemini" />
+        Gemini
+      </a>
+      <a class="ai-btn" href="#" onclick="copyAndOpen('https://chat.rovo.com/'); return false;">
+        <img src="../icons/atlassian-rovo-icon.webp" alt="Rovo" />
+        Rovo Chat
+      </a>
+    </div>
+    <div class="copy-confirm" id="copy-confirm">✓ Copied — now paste it in the tab that just opened</div>
 
     <hr class="final-divider" />
 
     <div class="how-to">
-      <strong>What happens when you paste it:</strong>
-      <ol>
-        <li>The AI reads your answers and builds a profile of your voice.</li>
-        <li>It produces a <strong>formatted Writing Guide</strong> — visual, shareable, pinnable.</li>
-        <li>It also produces a <strong>plain markdown version</strong> you can save and reuse as a system prompt.</li>
-      </ol>
+      <strong>What you'll get:</strong> A clean markdown Writing Guide you can save and paste at the start of any AI conversation to make it write in your voice.
+    </div>
+
+    <div class="artifact-section">
+      <div class="artifact-eyebrow">✦ Bonus — using Dia?</div>
+      <div class="artifact-heading">Get a beautiful visual artifact instead</div>
+      <div class="artifact-sub">Dia (and Claude) can render stunning visual documents. Use this alternate prompt to get a beautifully formatted artifact <em>plus</em> the markdown version.</div>
+      <a class="btn-artifact" href="#" onclick="copyArtifactPrompt(); return false;">
+        <img src="../icons/dia-icon.png" alt="Dia" />
+        Copy artifact prompt
+      </a>
+      <div class="copy-confirm" id="copy-confirm-artifact" style="margin-top:10px;">✓ Copied — paste into Dia (or Claude) for a beautiful artifact</div>
     </div>
 
     <span class="btn-restart" onclick="alert('Start over would go back to the intro screen.')">Start over</span>
@@ -167,21 +223,13 @@ A: If I'm being real, I over-explain. I don't trust the reader enough. I'll say 
 
 const SYNTHESIS_SYSTEM_PROMPT = `You are a world-class writing coach and editor. You've just conducted a deep interview with someone about their communication style, taste, and goals.
 
-Based on their answers, create a Personal Writing Guide — a concise, specific, highly personalized reference document they (or any AI) can use to write authentically in their voice.
+Based on their answers, produce a Personal Writing Guide in clean markdown — a concise, specific, highly personalized reference document they (or any AI) can use to write authentically in their voice.
 
 The guide must feel like it was written *specifically* for this person — not generic advice. Use their own words and phrases wherever possible. Be honest, including about weaknesses.
 
-Please produce TWO artifacts:
+Output only the markdown document below. No preamble, no commentary.
 
 ---
-
-## ARTIFACT 1: Formatted Writing Guide
-Produce a beautifully formatted, visually rich version of the guide (use headers, callout boxes, bold highlights, pull quotes from their interview — whatever formatting your interface supports). This is the one they'll show people or pin somewhere.
-
----
-
-## ARTIFACT 2: Markdown Style Guide
-Produce a plain markdown version with these exact sections — clean and copy-pasteable, for use as a system prompt or reference doc:
 
 # [Name]'s Personal Writing Guide
 
@@ -218,9 +266,34 @@ Take 1-2 short phrases or sentences from their actual interview answers and show
 - **Polished version:** (rewrite in their voice)
 - **What changed:** (one line explanation)
 
-Be specific. Be honest. Make this feel earned.`;
+---
+*Save this as your writing system prompt. Paste it at the start of any AI conversation where you want it to write in your voice.*`;
 
 const FULL_PROMPT = SYNTHESIS_SYSTEM_PROMPT + '\n\n---\n\nHere are the interview answers:\n\n' + MOCK_TRANSCRIPT;
+
+const ARTIFACT_SYSTEM_PROMPT = `You are a world-class writing coach and editor. You've just conducted a deep interview with someone about their communication style, taste, and goals.
+
+Based on their answers, create a Personal Writing Guide as a beautiful, visually rich artifact — the kind of document someone would want to pin, share, or keep open while writing.
+
+Use the full formatting capabilities of your interface: headers, pull quotes, callout blocks, bold highlights, dividers, color-coded sections — make it stunning. This is the version they'll show people.
+
+After the visual artifact, also include a plain markdown version with these sections for use as a system prompt:
+
+# [Name]'s Personal Writing Guide
+## Voice in One Line
+## Tone
+## Rhythm & Structure
+## Vocabulary
+## What They're Optimizing For
+## Writing Contexts
+## Admire & Aspire
+## What to Avoid
+## Growth Edge
+## Example Rewrites
+
+Be specific. Be honest. Make this feel earned.`;
+
+const ARTIFACT_PROMPT = ARTIFACT_SYSTEM_PROMPT + '\n\n---\n\nHere are the interview answers:\n\n' + MOCK_TRANSCRIPT;
 
 function esc(str) {
   return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -235,11 +308,24 @@ function togglePromptExpand() {
   btn.textContent = expanded ? 'Show less ↑' : 'Show full prompt ↓';
 }
 
-function copyPrompt() {
+function copyArtifactPrompt() {
+  navigator.clipboard.writeText(ARTIFACT_PROMPT).then(() => {
+    const el = document.getElementById('copy-confirm-artifact');
+    if (el) { el.style.display = 'block'; setTimeout(() => { el.style.display = 'none'; }, 3000); }
+  });
+}
+
+function copyAndOpen(url) {
   navigator.clipboard.writeText(FULL_PROMPT).then(() => {
     const el = document.getElementById('copy-confirm');
-    el.style.display = 'block';
-    setTimeout(() => { el.style.display = 'none'; }, 3000);
+    if (el) {
+      el.textContent = url
+        ? '✓ Copied — paste it in the tab that just opened'
+        : '✓ Copied — paste it into Claude, ChatGPT, Gemini, or Rovo Chat';
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 3000);
+    }
+    if (url) window.open(url, '_blank');
   });
 }
 </script>
