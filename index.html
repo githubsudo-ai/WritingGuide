@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Writing Voice Interview</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f0f; color: #f0f0f0;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 24px;
+    }
+    .container { width: 100%; max-width: 700px; }
+
+    /* Progress */
+    .progress-wrap { margin-bottom: 40px; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: #555; margin-bottom: 8px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .progress-bar { height: 2px; background: #1e1e1e; border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #fff; border-radius: 2px; transition: width 0.5s ease; }
+
+    /* Question */
+    .question { font-size: 26px; font-weight: 500; line-height: 1.4; color: #f0f0f0; margin-bottom: 8px; }
+    .question-hint { font-size: 14px; color: #555; margin-bottom: 28px; font-style: italic; }
+
+    /* Inputs */
+    textarea, input[type="text"] {
+      width: 100%; background: transparent; border: none;
+      border-bottom: 1px solid #2a2a2a; color: #f0f0f0;
+      font-size: 17px; line-height: 1.65; padding: 12px 0;
+      resize: none; outline: none; font-family: inherit;
+      transition: border-color 0.2s ease;
+    }
+    textarea { min-height: 100px; }
+    textarea::placeholder, input::placeholder { color: #3a3a3a; }
+    textarea:focus, input:focus { border-color: #555; }
+
+    /* Voice button */
+    .voice-row { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+    .btn-voice {
+      display: flex; align-items: center; gap: 6px;
+      background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 8px;
+      color: #888; font-size: 13px; padding: 8px 14px; cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-voice:hover { border-color: #555; color: #ccc; }
+    .btn-voice.recording { border-color: #e53935; color: #e53935; background: #1a0808; animation: pulse 1.5s infinite; }
+    .btn-voice svg { width: 14px; height: 14px; fill: currentColor; }
+    .voice-status { font-size: 13px; color: #555; font-style: italic; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+    /* A/B options */
+    .ab-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+    .ab-option {
+      background: #141414; border: 1px solid #222; border-radius: 12px;
+      padding: 20px; cursor: pointer; transition: all 0.2s ease;
+      font-size: 15px; line-height: 1.55; color: #bbb;
+    }
+    .ab-option:hover { border-color: #444; color: #eee; }
+    .ab-option.selected { border-color: #fff; color: #fff; background: #1c1c1c; }
+    .ab-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin-bottom: 8px; }
+
+    /* Controls */
+    .controls { display: flex; align-items: center; justify-content: space-between; margin-top: 32px; }
+    .skip-link { font-size: 13px; color: #444; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+    .skip-link:hover { color: #888; }
+    .btn-next {
+      background: #fff; color: #000; border: none; border-radius: 8px;
+      padding: 12px 28px; font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s ease; letter-spacing: -0.01em;
+    }
+    .btn-next:hover { background: #ddd; }
+    .btn-next:disabled { background: #1e1e1e; color: #444; cursor: not-allowed; }
+
+    /* Follow-up bubble */
+    .followup-bubble {
+      margin-top: 24px; background: #141414; border: 1px solid #222;
+      border-radius: 12px; padding: 16px 20px; font-size: 15px; color: #aaa;
+      line-height: 1.5; display: none;
+    }
+    .followup-bubble .followup-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin-bottom: 6px; }
+    .followup-bubble textarea { margin-top: 10px; font-size: 15px; min-height: 60px; border-bottom-color: #2a2a2a; }
+
+    /* Intro */
+    .intro { text-align: center; }
+    .intro h1 { font-size: 40px; font-weight: 600; margin-bottom: 20px; letter-spacing: -0.03em; }
+    .intro p { font-size: 17px; color: #888; line-height: 1.65; margin-bottom: 12px; max-width: 500px; margin-left: auto; margin-right: auto; }
+    .intro .meta { font-size: 13px; color: #555; margin-bottom: 32px; }
+    .name-wrap { margin: 28px auto 36px; max-width: 340px; text-align: left; }
+    .name-wrap label { font-size: 12px; color: #555; text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 8px; }
+    .btn-start {
+      background: #fff; color: #000; border: none; border-radius: 10px;
+      padding: 16px 44px; font-size: 17px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;
+    }
+    .btn-start:hover { background: #e0e0e0; }
+    .btn-start:disabled { background: #1e1e1e; color: #444; cursor: not-allowed; }
+
+    /* Final prompt screen */
+    .final-screen {}
+    .final-screen h1 { font-size: 28px; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.02em; }
+    .final-screen .subtitle { font-size: 15px; color: #666; margin-bottom: 32px; }
+
+    .section-label {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #555;
+      margin-bottom: 10px; margin-top: 28px;
+    }
+    .section-label:first-child { margin-top: 0; }
+
+    .transcript-box, .prompt-box {
+      background: #141414; border: 1px solid #222; border-radius: 16px;
+      padding: 24px; font-size: 14px; line-height: 1.75; color: #999;
+      white-space: pre-wrap; font-family: 'SF Mono', 'Fira Mono', monospace;
+      max-height: 220px; overflow-y: auto;
+    }
+    .prompt-box {
+      max-height: 300px; color: #ccc; font-family: inherit; font-size: 15px;
+      white-space: pre-wrap;
+    }
+
+    .final-actions { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+    .btn-primary {
+      background: #fff; color: #000; border: none; border-radius: 8px;
+      padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-primary:hover { background: #ddd; }
+    .btn-secondary {
+      background: transparent; color: #888; border: 1px solid #2a2a2a; border-radius: 8px;
+      padding: 12px 24px; font-size: 14px; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-secondary:hover { border-color: #555; color: #ccc; }
+    .copy-confirm { font-size: 13px; color: #4caf50; margin-top: 8px; display: none; }
+
+    .instructions-box {
+      background: #0d1a0d; border: 1px solid #1a3a1a; border-radius: 12px;
+      padding: 20px 24px; margin-top: 12px; font-size: 14px; color: #7cb87c; line-height: 1.7;
+    }
+    .instructions-box strong { color: #a0d4a0; }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+  </style>
+</head>
+<body>
+<div class="container" id="app"></div>
+<script>
+const PHASES = { 1: 'Phase 1 — Voice Discovery', 2: 'Phase 2 — Taste Calibration', 3: 'Phase 3 — Context Mapping', 4: 'Phase 4 — Writing Prompts' };
+
+const QUESTIONS = [
+  { id:1, phase:1, q:"What do you do — but explain it like you're at a dinner party, not a job interview.", hint:"Don't overthink it. Just talk.", type:"text", placeholder:"I basically..." },
+  { id:2, phase:1, q:"What's something you've changed your mind about in the last few years?", hint:"Work, life, anything. How did your thinking shift?", type:"text", placeholder:"I used to think..." },
+  { id:3, phase:1, q:"Tell me about something you're genuinely excited about right now.", hint:"Drop the filters. What actually gets you going?", type:"text", placeholder:"Okay so..." },
+  { id:4, phase:1, q:"What's something people get wrong about your field or your work — that quietly frustrates you?", hint:"Be honest. Nobody's grading you.", type:"text", placeholder:"People always assume..." },
+  { id:5, phase:1, q:"How would the people who know you best describe the way you communicate?", hint:"What would they say about how you write or talk?", type:"text", placeholder:"They'd probably say..." },
+  { id:6, phase:2, q:"Is there a writer or communicator whose words you genuinely admire? What do they do that you wish you did?", hint:"Author, newsletter, tweets, a colleague — anyone.", type:"text", placeholder:"The person I think of is..." },
+  { id:7, phase:2, q:"What kind of writing makes you cringe or roll your eyes?", hint:"Be specific. The more honest, the better.", type:"text", placeholder:"Nothing bothers me more than..." },
+  { id:8, phase:2, q:"Which of these feels more like you? Gut reaction.", hint:"Don't overthink. Which one would you rather have written?", type:"ab",
+    optionA:'"We\'ve identified a strategic opportunity to enhance cross-functional alignment and drive meaningful outcomes for our stakeholders."',
+    optionB:'"We found something that could make a real difference — if we get the right people in the room."' },
+  { id:9, phase:2, q:"Do you prefer reading something short and punchy, or thorough and detailed?", hint:"Does your answer change depending on what you're reading?", type:"text", placeholder:"It depends, but generally..." },
+  { id:10, phase:3, q:"What do you write most often? Think about the last week.", hint:"Emails, Slack, docs, social posts, reports — whatever comes to mind.", type:"text", placeholder:"Mostly I'm writing..." },
+  { id:11, phase:3, q:"Who's your most common reader? Is there one person you find yourself writing for most often?", hint:"Real or imagined — a specific person changes everything.", type:"text", placeholder:"Honestly, I'm usually writing for..." },
+  { id:12, phase:3, q:"When someone finishes reading something you wrote, what's the one thing you want them to feel or do?", hint:"Trust you? Take action? Feel something? Be clear?", type:"text", placeholder:"I want them to..." },
+  { id:13, phase:4, q:"Explain a recent decision you made in 2-3 sentences. Could be tiny.", hint:"Short. Instinctive. Don't overthink the writing.", type:"text", placeholder:"I decided to..." },
+  { id:14, phase:4, q:"Pitch me on something you care about. 4-5 sentences. Go.", hint:"Anything — a project, an idea, a product, a habit.", type:"text", placeholder:"Here's the thing..." },
+  { id:15, phase:4, q:"Last one. If your writing had one flaw you'd most want to fix, what would it be?", hint:"Be honest with yourself.", type:"text", placeholder:"If I'm being real..." }
+];
+const TOTAL = QUESTIONS.length;
+
+let state = {
+  screen: 'intro',
+  name: '',
+  current: 0,
+  answers: {},
+  followUps: {},
+  abChoice: null
+};
+
+// ── Voice (Web Speech API) ───────────────────────────────────────────────────
+let speechRecognition = null;
+let isRecording = false;
+
+function initSpeech(questionId) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return false;
+  speechRecognition = new SR();
+  speechRecognition.continuous = true;
+  speechRecognition.interimResults = true;
+  speechRecognition.lang = 'en-US';
+  let finalTranscript = '';
+  speechRecognition.onstart = () => { isRecording = true; updateVoiceButton(true); setVoiceStatus('Listening...'); };
+  speechRecognition.onresult = (e) => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript + ' ';
+      else interim = e.results[i][0].transcript;
+    }
+    const ta = document.getElementById('answer-input');
+    if (ta) { ta.value = (finalTranscript + interim).trim(); onTextInput(ta); }
+  };
+  speechRecognition.onerror = (e) => { setVoiceStatus('Mic error: ' + e.error); isRecording = false; updateVoiceButton(false); };
+  speechRecognition.onend = () => {
+    if (isRecording) { speechRecognition.start(); return; }
+    setVoiceStatus('');
+  };
+  return true;
+}
+
+function toggleSpeech(questionId) {
+  if (isRecording) {
+    isRecording = false;
+    if (speechRecognition) speechRecognition.stop();
+    updateVoiceButton(false);
+    setVoiceStatus('');
+  } else {
+    const ok = initSpeech(questionId);
+    if (ok) { speechRecognition.start(); }
+    else { setVoiceStatus('Voice input not supported in this browser. Try Chrome.'); }
+  }
+}
+
+function updateVoiceButton(recording) {
+  const btn = document.getElementById('btn-voice');
+  if (!btn) return;
+  if (recording) {
+    btn.classList.add('recording');
+    btn.innerHTML = `<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg> Stop`;
+  } else {
+    btn.classList.remove('recording');
+    btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm6 9a1 1 0 0 1 2 0 8 8 0 0 1-7 7.94V20h3a1 1 0 0 1 0 2H8a1 1 0 0 1 0-2h3v-2.06A8 8 0 0 1 4 10a1 1 0 0 1 2 0 6 6 0 0 0 12 0z"/></svg> Speak`;
+  }
+}
+
+function setVoiceStatus(msg) {
+  const el = document.getElementById('voice-status');
+  if (el) el.textContent = msg;
+}
+
+// ── Rendering ────────────────────────────────────────────────────────────────
+const app = document.getElementById('app');
+
+function render() {
+  if (state.screen === 'intro') renderIntro();
+  else if (state.screen === 'question') renderQuestion();
+  else if (state.screen === 'final') renderFinal();
+}
+
+function renderIntro() {
+  app.innerHTML = `
+    <div class="intro">
+      <h1>Find your voice.</h1>
+      <p>A 15-minute interview that helps AI understand how you think and communicate.</p>
+      <p>At the end, you'll get a <strong>ready-to-paste prompt</strong> you can drop into Claude, ChatGPT, Gemini — any AI. It'll generate your Personal Writing Guide.</p>
+      <p class="meta">15 questions &nbsp;·&nbsp; ~15 minutes &nbsp;·&nbsp; No backend required</p>
+      <div class="name-wrap">
+        <label for="name-input">Your first name</label>
+        <input type="text" id="name-input" placeholder="e.g. Abhinav" oninput="onNameInput(this)" autocomplete="given-name" />
+      </div>
+      <button class="btn-start" id="btn-start" onclick="startInterview()" disabled>Let's go →</button>
+    </div>`;
+  setTimeout(() => document.getElementById('name-input').focus(), 80);
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[state.current];
+  const isLast = state.current === TOTAL - 1;
+  const pct = (state.current / TOTAL) * 100;
+  const existing = state.answers[q.id] || '';
+  const canGo = canProceed(q, existing, state.abChoice);
+
+  app.innerHTML = `
+    <div class="progress-wrap">
+      <div class="progress-label"><span>${PHASES[q.phase]}</span><span>${state.current + 1} / ${TOTAL}</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="question">${q.q}</div>
+    <div class="question-hint">${q.hint}</div>
+    ${q.type === 'ab' ? renderAB(q) : `
+      <textarea id="answer-input" placeholder="${q.placeholder}" oninput="onTextInput(this)" rows="4">${existing}</textarea>
+      <div class="voice-row">
+        <button class="btn-voice" id="btn-voice" onclick="toggleSpeech(${q.id})">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor"><path d="M12 1a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm6 9a1 1 0 0 1 2 0 8 8 0 0 1-7 7.94V20h3a1 1 0 0 1 0 2H8a1 1 0 0 1 0-2h3v-2.06A8 8 0 0 1 4 10a1 1 0 0 1 2 0 6 6 0 0 0 12 0z"/></svg>
+          Speak
+        </button>
+        <span class="voice-status" id="voice-status"></span>
+      </div>
+    `}
+    <div class="followup-bubble" id="followup-box">
+      <div class="followup-label">🤔 Follow-up</div>
+      <div class="followup-q" style="color:#ccc;font-size:15px;"></div>
+      <textarea id="followup-input" placeholder="Go deeper..." rows="2" oninput="saveFollowUp(${q.id}, this.value)">${state.followUps[q.id] || ''}</textarea>
+    </div>
+    <div class="controls">
+      <span class="skip-link" onclick="skipQuestion()">Skip</span>
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()" ${canGo ? '' : 'disabled'}>${isLast ? 'Finish →' : 'Next →'}</button>
+    </div>`;
+
+  const ta = document.getElementById('answer-input');
+  if (ta) setTimeout(() => ta.focus(), 80);
+
+  if (state.followUps[q.id] !== undefined && state.followUps[q.id] !== null) {
+    const box = document.getElementById('followup-box');
+    if (box) box.style.display = 'block';
+  }
+}
+
+function renderAB(q) {
+  const a = state.abChoice;
+  return `
+    <div class="ab-options">
+      <div class="ab-option ${a==='A'?'selected':''}" onclick="selectAB('A')">
+        <div class="ab-label">Option A</div>${q.optionA}
+      </div>
+      <div class="ab-option ${a==='B'?'selected':''}" onclick="selectAB('B')">
+        <div class="ab-label">Option B</div>${q.optionB}
+      </div>
+    </div>
+    <textarea id="answer-input" placeholder="Why does that one feel more like you?" rows="2" oninput="onTextInput(this)">${state.answers[q.id]?.split('\n')[1] || ''}</textarea>`;
+}
+
+function renderFinal() {
+  const transcript = buildTranscript();
+  const fullPrompt = buildFullPrompt(transcript);
+
+  app.innerHTML = `
+    <div class="final-screen">
+      <h1>You're done, ${esc(state.name)} ✦</h1>
+      <div class="subtitle">Here's everything you need. Paste the prompt below into any AI to get your Writing Guide.</div>
+
+      <div class="instructions-box">
+        <strong>How to use this:</strong><br>
+        1. Copy the full prompt below.<br>
+        2. Open Claude, ChatGPT, Gemini, or any AI of your choice.<br>
+        3. Paste it in and hit send.<br>
+        4. The AI will generate two things: a <strong>fully formatted Writing Guide</strong> (rich artifact) and a <strong>plain markdown version</strong> you can save and reuse.
+      </div>
+
+      <div class="section-label" style="margin-top:28px;">Your answers (captured)</div>
+      <div class="transcript-box">${esc(transcript)}</div>
+
+      <div class="section-label">Full prompt — copy &amp; paste into any AI</div>
+      <div class="prompt-box" id="prompt-box">${esc(fullPrompt)}</div>
+      <div class="final-actions">
+        <button class="btn-primary" onclick="copyPrompt()">Copy Full Prompt</button>
+        <button class="btn-secondary" onclick="copyTranscript()">Copy Transcript Only</button>
+        <button class="btn-secondary" onclick="restart()">Start Over</button>
+      </div>
+      <div class="copy-confirm" id="copy-confirm"></div>
+    </div>`;
+}
+
+// ── Prompt builder ────────────────────────────────────────────────────────────
+const SYNTHESIS_SYSTEM_PROMPT = `You are a world-class writing coach and editor. You've just conducted a deep interview with someone about their communication style, taste, and goals.
+
+Based on their answers, create a Personal Writing Guide — a concise, specific, highly personalized reference document they (or any AI) can use to write authentically in their voice.
+
+The guide must feel like it was written *specifically* for this person — not generic advice. Use their own words and phrases wherever possible. Be honest, including about weaknesses.
+
+Please produce TWO artifacts:
+
+---
+
+## ARTIFACT 1: Formatted Writing Guide
+Produce a beautifully formatted, visually rich version of the guide (use headers, callout boxes, bold highlights, pull quotes from their interview — whatever formatting your interface supports). This is the one they'll show people or pin somewhere.
+
+---
+
+## ARTIFACT 2: Markdown Style Guide
+Produce a plain markdown version with these exact sections — clean and copy-pasteable, for use as a system prompt or reference doc:
+
+\`\`\`markdown
+# [Name]'s Personal Writing Guide
+
+## Voice in One Line
+A single sentence capturing their essence as a communicator.
+
+## Tone
+- Overall feeling, energy, formality level
+
+## Rhythm & Structure
+- Sentence length tendencies, how they build to a point, use of lists vs prose
+
+## Vocabulary
+- Words/phrases that feel natural, ones to avoid, any signature expressions
+
+## What They're Optimizing For
+- What they want readers to feel or do; trust/clarity/action/warmth/authority
+
+## Writing Contexts
+For each context they mentioned, one line on how tone shifts.
+
+## Admire & Aspire
+- Who they admire and what specific qualities they're reaching toward
+
+## What to Avoid
+- Cringe-worthy patterns, known weaknesses, off-brand phrases or structures
+
+## Growth Edge
+The one thing they most want to improve, framed constructively.
+
+## Example Rewrites
+Take 1-2 short phrases or sentences from their actual interview answers and show:
+- **Their words:** (quote)
+- **Polished version:** (rewrite in their voice)
+- **What changed:** (one line explanation)
+\`\`\`
+
+Be specific. Be honest. Make this feel earned.`;
+
+function buildTranscript() {
+  const name = state.name || 'Anonymous';
+  let out = `Interview with: ${name}\n`;
+  out += `Date: ${new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' })}\n\n`;
+  out += `---\n\n`;
+  QUESTIONS.forEach(q => {
+    out += `Q${q.id}: ${q.q}\n`;
+    out += `A: ${state.answers[q.id] || '[skipped]'}\n`;
+    if (state.followUps[q.id]) out += `Follow-up: ${state.followUps[q.id]}\n`;
+    out += '\n';
+  });
+  return out.trim();
+}
+
+function buildFullPrompt(transcript) {
+  return SYNTHESIS_SYSTEM_PROMPT + '\n\n---\n\nHere are the interview answers:\n\n' + transcript;
+}
+
+// ── Event handlers ────────────────────────────────────────────────────────────
+function onNameInput(el) {
+  state.name = el.value.trim();
+  const btn = document.getElementById('btn-start');
+  if (btn) btn.disabled = state.name.length < 1;
+}
+
+function canProceed(q, text, ab) {
+  if (q.type === 'ab') return ab !== null;
+  return text.trim().length > 10;
+}
+
+function onTextInput(el) {
+  const q = QUESTIONS[state.current];
+  state.answers[q.id] = el.value;
+  const btn = document.getElementById('btn-next');
+  if (btn) btn.disabled = !canProceed(q, el.value, state.abChoice);
+}
+
+function selectAB(choice) {
+  const q = QUESTIONS[state.current];
+  state.abChoice = choice;
+  const ta = document.getElementById('answer-input');
+  const reason = ta ? ta.value : '';
+  const optText = choice === 'A' ? q.optionA : q.optionB;
+  state.answers[q.id] = `Chose Option ${choice}: ${optText}\n${reason}`;
+  document.querySelectorAll('.ab-option').forEach((el, i) => {
+    el.classList.toggle('selected', (i===0&&choice==='A')||(i===1&&choice==='B'));
+  });
+  const btn = document.getElementById('btn-next');
+  if (btn) btn.disabled = false;
+  if (ta) setTimeout(() => ta.focus(), 50);
+}
+
+function saveFollowUp(questionId, val) {
+  state.followUps[questionId] = val;
+}
+
+function saveCurrentAnswer() {
+  const q = QUESTIONS[state.current];
+  const ta = document.getElementById('answer-input');
+  if (ta) {
+    if (q.type === 'ab' && state.abChoice) {
+      const optText = state.abChoice === 'A' ? q.optionA : q.optionB;
+      state.answers[q.id] = `Chose Option ${state.abChoice}: ${optText}\n${ta.value}`;
+    } else {
+      state.answers[q.id] = ta.value;
+    }
+  }
+  const fta = document.getElementById('followup-input');
+  if (fta && fta.value.trim()) state.followUps[q.id] = fta.value;
+}
+
+function nextQuestion() {
+  saveCurrentAnswer();
+  if (state.current < TOTAL - 1) {
+    state.current++;
+    state.abChoice = null;
+    fade(() => renderQuestion());
+  } else {
+    state.screen = 'final';
+    fade(() => renderFinal());
+  }
+}
+
+function skipQuestion() {
+  const q = QUESTIONS[state.current];
+  state.answers[q.id] = '[skipped]';
+  if (state.current < TOTAL - 1) {
+    state.current++;
+    state.abChoice = null;
+    fade(() => renderQuestion());
+  } else {
+    state.screen = 'final';
+    fade(() => renderFinal());
+  }
+}
+
+function startInterview() {
+  if (!state.name) return;
+  state.screen = 'question';
+  fade(() => renderQuestion());
+}
+
+function restart() {
+  state = { screen:'intro', name:'', current:0, answers:{}, followUps:{}, abChoice:null };
+  fade(() => renderIntro());
+}
+
+function fade(fn) {
+  app.style.opacity = '0';
+  app.style.transition = 'opacity 0.2s';
+  setTimeout(() => { fn(); app.style.opacity = '1'; }, 200);
+}
+
+// ── Copy helpers ──────────────────────────────────────────────────────────────
+function showConfirm(msg) {
+  const el = document.getElementById('copy-confirm');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 2500);
+}
+
+function copyPrompt() {
+  const transcript = buildTranscript();
+  const fullPrompt = buildFullPrompt(transcript);
+  navigator.clipboard.writeText(fullPrompt).then(() => showConfirm('Full prompt copied ✓ — paste it into Claude, ChatGPT, Gemini, or any AI.'));
+}
+
+function copyTranscript() {
+  const transcript = buildTranscript();
+  navigator.clipboard.writeText(transcript).then(() => showConfirm('Transcript copied ✓'));
+}
+
+// ── Escape HTML ───────────────────────────────────────────────────────────────
+function esc(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+render();
+</script>
+</body>
+</html>
